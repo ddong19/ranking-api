@@ -1,14 +1,21 @@
-# Ignore all .idea/ files except those that should be shared
-.idea/*
-!.idea/vcs.xml
-!.idea/modules.xml
-!.idea/*.iml
+# Ignore all .idea files by default
+.idea/
 
-# Ignore workspace settings (user-specific)
+# Allow tracking of essential shared settings
+!.idea/misc.xml
+!.idea/modules.xml
+!.idea/vcs.xml
+!.idea/libraries/
+!.idea/runConfigurations/
+!.idea/codeStyles/
+
+# Ignore user-specific settings
 .idea/workspace.xml
 .idea/usage.statistics.xml
-.idea/dictionaries
+.idea/dictionaries/
 .idea/shelf/
+.idea/httpRequests/
+
 
 # Ignore compiled files and dependencies
 *.class
