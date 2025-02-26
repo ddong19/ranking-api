@@ -1,0 +1,57 @@
+# Ignore all .idea/ files except those that should be shared
+.idea/*
+!.idea/vcs.xml
+!.idea/modules.xml
+!.idea/*.iml
+
+# Ignore workspace settings (user-specific)
+.idea/workspace.xml
+.idea/usage.statistics.xml
+.idea/dictionaries
+.idea/shelf/
+
+# Ignore compiled files and dependencies
+*.class
+*.jar
+*.war
+*.ear
+
+# Logs and system files
+*.log
+*.tmp
+*.swp
+*.swo
+.DS_Store
+Thumbs.db
+
+# Node.js dependencies (if using Node.js)
+node_modules/
+npm-debug.log
+yarn-error.log
+
+# Python (if using PyCharm)
+__pycache__/
+*.pyc
+*.pyo
+venv/
+
+# Java (if using IntelliJ IDEA for Java development)
+*.class
+*.project
+*.classpath
+*.settings/
+
+# VS Code (if you or teammates use it)
+.vscode/
+
+# Environment variables or secrets
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# Ignore JetBrains IDEs' sensitive files (optional but recommended)
+.idea/httpRequests/
+.idea/dataSources/
+.idea/dataSources.local.xml
