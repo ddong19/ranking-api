@@ -28,7 +28,7 @@
 *.tmp
 *.swp
 *.swo
-.DS_Store
+.DS_Storepy
 Thumbs.db
 
 # Node.js dependencies (if using Node.js)
