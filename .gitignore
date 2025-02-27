@@ -40,7 +40,7 @@ yarn-error.log
 __pycache__/
 *.pyc
 *.pyo
-venv/
+.venv/
 
 # Java (if using IntelliJ IDEA for Java development)
 *.class
