@@ -28,8 +28,6 @@ DEBUG = True
 
 ALLOWED_HOSTS = []
 
-DJANGO_SETTINGS_MODULE = 'ranking_api.settings'
-
 # Application definition
 
 INSTALLED_APPS = [

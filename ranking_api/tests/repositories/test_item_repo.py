@@ -1,10 +1,6 @@
 import pytest
-from ...models import Item, RankingList
-from ...repositories.item_repository import ItemRepository
-import os
-os.environ['DJANGO_SETTINGS_MODULE'] = 'ranking_api.settings'
-
-
+from ranking_api.models import Item, RankingList
+from ranking_api.repositories.item_repository import ItemRepository
 
 @pytest.mark.django_db
 def test_get_item():
@@ -15,12 +11,14 @@ def test_get_item():
     item1 = Item.objects.create(
         ranking=ranking,
         name="London",
-        description="The capital of England",
+        notes="The capital of England",
+        rank=1
     )
     item2 = Item.objects.create(
         ranking=ranking,
         name="Paris",
-        description="The capital of France",
+        notes="The capital of France",
+        rank=2
     )
 
     repo = ItemRepository()
