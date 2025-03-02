@@ -2,40 +2,40 @@ import pytest
 from ranking_api.models import Item, RankingList
 from ranking_api.repositories.item_repository import ItemRepository
 
+class TestItemRepository:
+    @pytest.mark.django_db
+    def test_get_chicago_from_cities_ranking(self, cities_ranking, cities_item):
+        retrieved_item = ItemRepository().get_item(cities_ranking.id, cities_item.id)
 
-@pytest.mark.django_db
-def test_get_chicago_from_cities_ranking(cities_ranking, cities_item):
-    retrieved_item = ItemRepository().get_item(cities_ranking.id, cities_item.id)
-
-    assert retrieved_item is not None
-    assert retrieved_item.name == "Chicago"
-    assert retrieved_item.ranking.title == "Cities"
-
-
-@pytest.mark.django_db
-def test_get_chicago_from_wrong_ranking(travel_ranking, cities_item):
-    retrieved_item = ItemRepository().get_item(travel_ranking.id, cities_item.id)
-
-    assert retrieved_item is None
+        assert retrieved_item is not None
+        assert retrieved_item.name == "Chicago"
+        assert retrieved_item.ranking.title == "Cities"
 
 
-@pytest.mark.django_db
-def test_get_items_from_travel_ranking(travel_ranking, travel_items):
-    retrieved_items = ItemRepository().get_items(travel_ranking.id)
+    @pytest.mark.django_db
+    def test_get_chicago_from_wrong_ranking(self, travel_ranking, cities_item):
+        retrieved_item = ItemRepository().get_item(travel_ranking.id, cities_item.id)
 
-    assert len(retrieved_items) == 4
+        assert retrieved_item is None
+
+
+    @pytest.mark.django_db
+    def test_get_items_from_travel_ranking(self, travel_ranking, travel_items):
+        retrieved_items = ItemRepository().get_items(travel_ranking.id)
+
+        assert len(retrieved_items) == 4
 
 
 
-@pytest.mark.django_db
-def test_get_items_in_rank_order(travel_ranking, travel_items):
-    repo = ItemRepository()
-    retrieved_items = repo.get_items(travel_ranking.id)
+    @pytest.mark.django_db
+    def test_get_items_in_rank_order(self, travel_ranking, travel_items):
+        repo = ItemRepository()
+        retrieved_items = repo.get_items(travel_ranking.id)
 
-    assert retrieved_items[0].name == "London"
-    assert retrieved_items[1].name == "Paris"
-    assert retrieved_items[2].name == "Rome"
-    assert retrieved_items[3].name == "Berlin"
+        assert retrieved_items[0].name == "London"
+        assert retrieved_items[1].name == "Paris"
+        assert retrieved_items[2].name == "Rome"
+        assert retrieved_items[3].name == "Berlin"
 
 
 @pytest.fixture

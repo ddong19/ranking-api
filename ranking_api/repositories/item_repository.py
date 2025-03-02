@@ -11,5 +11,5 @@ class ItemRepository:
             return None
 
     @staticmethod
-    def get_items(ranking_id: int) -> List[Item]:
+    def get_items(ranking_id) -> List[Item]:
         return list(Item.objects.filter(ranking_id = ranking_id).order_by('rank'))
