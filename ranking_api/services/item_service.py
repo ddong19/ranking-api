@@ -1,5 +1,5 @@
 from ranking_api.models import Item
-from repositories.item_repository import ItemRepository
+from ranking_api.repositories.item_repository import ItemRepository
 
 
 class ItemService:

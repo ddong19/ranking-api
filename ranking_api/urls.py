@@ -17,6 +17,12 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path
 
+from ranking_api.controllers.item_controller import ItemController
+
 urlpatterns = [
     path('admin/', admin.site.urls),
+    path('api/rankings/<int:ranking_id>/items/',
+         ItemController.as_view({'get': 'get_ranking_items'}),
+         name='ranking-items'),
+
 ]
