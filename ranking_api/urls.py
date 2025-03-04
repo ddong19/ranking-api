@@ -24,5 +24,8 @@ urlpatterns = [
     path('api/rankings/<int:ranking_id>/items/',
          ItemController.as_view({'get': 'get_ranking_items'}),
          name='ranking-items'),
+    path('api/rankings/<int:ranking_id>/item/<int:item_id>/',
+         ItemController.as_view({'get': 'get_ranking_item'}),
+         name='ranking-item'),
 
 ]

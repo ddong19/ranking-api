@@ -1,7 +1,5 @@
 import pytest
-from unittest.mock import Mock, patch
-from typing import Optional
-
+from unittest.mock import Mock
 from ranking_api.models.item import Item, RankingList
 from ranking_api.repositories.item_repository import ItemRepository
 from ranking_api.services.item_service import ItemService

@@ -1,6 +1,5 @@
 from django.http import JsonResponse
 from rest_framework import viewsets
-from typing import Optional
 
 from ranking_api.services.item_service import ItemService
 from ranking_api.repositories.item_repository import ItemRepository
@@ -12,6 +11,7 @@ class ItemController(viewsets.ViewSet):
         self.item_service = ItemService(item_repository=ItemRepository())
 
     def get_ranking_items(self, request, ranking_id: int):
+        #TODO: return 404 if ranking_id doesn't exist
         try:
             items = self.item_service.get_items(ranking_id)
             return JsonResponse({
@@ -23,6 +23,22 @@ class ItemController(viewsets.ViewSet):
                         'ranking_id': item.ranking.id
                     } for item in items
                 ]
+            })
+        except Exception as e:
+            return JsonResponse({'error': str(e)}, status=500)
+
+    def get_ranking_item(self, request, ranking_id: int, item_id: int):
+        try:
+            item = self.item_service.get_item(ranking_id, item_id)
+
+            if item is None:
+                return JsonResponse({'error': 'Item not found'}, status=404)
+
+            return JsonResponse({
+                'id': item.id,
+                'name': item.name,
+                'rank': item.rank,
+                'ranking_id': item.ranking.id
             })
         except Exception as e:
             return JsonResponse({'error': str(e)}, status=500)

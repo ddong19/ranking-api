@@ -35,13 +35,58 @@ class TestItemController(TestCase):
             kwargs={'ranking_id': self.ranking.id}
         )
 
-    @patch('ranking_api.controllers.ItemController')
-    def test_get_ranking_items(self, mock_controller):
-        mock_controller.get_items.return_value = self.items
+        self.ranking_item_url = reverse(
+            'ranking-item',
+            kwargs={'ranking_id': self.ranking.id, 'item_id': self.items[0].id}
+        )
+
+    @patch('ranking_api.services.ItemService')
+    def test_get_ranking_items(self, mock_service):
+        mock_service.get_items.return_value = self.items
 
         response = self.client.get(self.ranking_items_url)
-        self.assertEqual(response.status_code, 200)
+
+        self.assertEqual(200, response.status_code)
         data = json.loads(response.content)
         self.assertEqual(len(data['items']), 2)
         self.assertEqual(data['items'][0]['name'], 'London')
         self.assertEqual(data['items'][1]['name'], 'Paris')
+
+
+    @patch('ranking_api.services.ItemService')
+    def test_get_ranking_items_error(self, mock_service):
+        mock_service.get_items.return_value = []
+
+        url = reverse('ranking-items', kwargs={'ranking_id': 100})
+
+        response = self.client.get(url)
+        self.assertEqual(200, response.status_code)
+        data = json.loads(response.content)
+        self.assertEqual(data['items'], [])
+
+
+    #TODO: test return 404 if ranking_id doesn't exist
+
+
+    @patch('ranking_api.services.ItemService')
+    def test_get_ranking_item(self, mock_service):
+        mock_service.get_item.return_value = self.items[0]
+
+        response = self.client.get(self.ranking_item_url)
+
+        self.assertEqual(200, response.status_code)
+        data = json.loads(response.content)
+        self.assertEqual('London', data['name'])
+
+
+    @patch('ranking_api.services.ItemService')
+    def test_get_ranking_item_error(self, mock_service):
+        mock_service.get_item.return_value = None
+
+        url = reverse('ranking-item', kwargs={'ranking_id': 100, 'item_id': 100})
+
+        response = self.client.get(url)
+
+        self.assertEqual(404, response.status_code)
+
+
