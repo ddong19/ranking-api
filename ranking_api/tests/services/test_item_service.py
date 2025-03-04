@@ -28,22 +28,22 @@ class TestItemService:
         mock_item_repository.get_item.assert_called_once_with(non_existent_ranking_id, fake_item.id)
 
     def test_get_items_success(self, item_service, fake_items_list, mock_item_repository):
-        mock_item_repository.get_items.return_value = fake_items_list
+        mock_item_repository.get_all_items.return_value = fake_items_list
 
         retrieved_items = item_service.get_items(fake_items_list[0].ranking.id)
 
         assert len(retrieved_items) == 2
         assert retrieved_items[0].name == fake_items_list[0].name
         assert retrieved_items[1].name == fake_items_list[1].name
-        mock_item_repository.get_items.assert_called_once_with(fake_items_list[0].ranking.id)
+        mock_item_repository.get_all_items.assert_called_once_with(fake_items_list[0].ranking.id)
 
     def test_get_items_wrong_ranking(self, item_service, mock_item_repository):
-        mock_item_repository.get_items.return_value = None
+        mock_item_repository.get_all_items.return_value = None
         non_existent_ranking_id = 999
         retrieved_items = item_service.get_items(non_existent_ranking_id)
 
         assert retrieved_items is None
-        mock_item_repository.get_items.assert_called_once_with(non_existent_ranking_id)
+        mock_item_repository.get_all_items.assert_called_once_with(non_existent_ranking_id)
 
 
 @pytest.fixture

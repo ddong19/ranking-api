@@ -2,41 +2,38 @@ import pytest
 from ranking_api.models import Item, RankingList
 from ranking_api.repositories.item_repository import ItemRepository
 
+@pytest.mark.django_db
 class TestItemRepository:
-    @pytest.mark.django_db
-    def test_get_chicago_from_cities_ranking(self, cities_ranking, cities_item):
-        retrieved_item = ItemRepository().get_item(cities_ranking.id, cities_item.id)
+
+    def test_get_chicago_from_cities_ranking(self, repository, cities_ranking, cities_item):
+        retrieved_item = repository.get_item(cities_ranking.id, cities_item.id)
 
         assert retrieved_item is not None
         assert retrieved_item.name == "Chicago"
         assert retrieved_item.ranking.title == "Cities"
 
-
-    @pytest.mark.django_db
-    def test_get_chicago_from_wrong_ranking(self, travel_ranking, cities_item):
-        retrieved_item = ItemRepository().get_item(travel_ranking.id, cities_item.id)
+    def test_get_chicago_from_wrong_ranking(self, repository, travel_ranking, cities_item):
+        retrieved_item = repository.get_item(travel_ranking.id, cities_item.id)
 
         assert retrieved_item is None
 
-
-    @pytest.mark.django_db
-    def test_get_items_from_travel_ranking(self, travel_ranking, travel_items):
-        retrieved_items = ItemRepository().get_items(travel_ranking.id)
+    def test_get_items_from_travel_ranking(self, repository, travel_ranking, travel_items):
+        retrieved_items = repository.get_all_items(travel_ranking.id)
 
         assert len(retrieved_items) == 4
 
 
-
-    @pytest.mark.django_db
-    def test_get_items_in_rank_order(self, travel_ranking, travel_items):
-        repo = ItemRepository()
-        retrieved_items = repo.get_items(travel_ranking.id)
+    def test_get_items_in_rank_order(self, repository, travel_ranking, travel_items):
+        retrieved_items = repository.get_all_items(travel_ranking.id)
 
         assert retrieved_items[0].name == "London"
         assert retrieved_items[1].name == "Paris"
         assert retrieved_items[2].name == "Rome"
         assert retrieved_items[3].name == "Berlin"
 
+@pytest.fixture
+def repository():
+    return ItemRepository()
 
 @pytest.fixture
 def travel_ranking():

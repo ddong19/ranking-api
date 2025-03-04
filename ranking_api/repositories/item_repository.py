@@ -2,14 +2,21 @@ from ranking_api.models import Item
 from typing import List, Optional
 
 class ItemRepository:
+    def __init__(self):
+        self.model = Item
 
-    @staticmethod
-    def get_item(ranking_id, item_id) -> Optional[Item]:
+    def get_item(self, ranking_id, item_id) -> Optional[Item]:
         try:
-            return Item.objects.filter(ranking_id = ranking_id).get(id=item_id)
-        except Item.DoesNotExist:
+            return self.model.objects.get(
+                ranking = ranking_id,
+                id = item_id
+            )
+        except self.model.DoesNotExist:
             return None
 
-    @staticmethod
-    def get_items(ranking_id) -> List[Item]:
-        return list(Item.objects.filter(ranking_id = ranking_id).order_by('rank'))
+    def get_all_items(self, ranking_id: int) -> List[Item]:
+        return list(
+            self.model.objects
+            .filter(ranking=ranking_id)
+            .order_by('rank')
+        )
