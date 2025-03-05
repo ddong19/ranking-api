@@ -13,7 +13,7 @@ class ItemController(viewsets.ViewSet):
     def get_ranking_items(self, request, ranking_id: int):
         #TODO: return 404 if ranking_id doesn't exist
         try:
-            items = self.item_service.get_items(ranking_id)
+            items = self.item_service.get_all_items(ranking_id)
             return JsonResponse({
                 'items': [
                     {

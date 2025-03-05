@@ -42,7 +42,7 @@ class TestItemController(TestCase):
 
     @patch('ranking_api.services.ItemService')
     def test_get_ranking_items(self, mock_service):
-        mock_service.get_items.return_value = self.items
+        mock_service.get_all_items.return_value = self.items
 
         response = self.client.get(self.ranking_items_url)
 
@@ -55,7 +55,7 @@ class TestItemController(TestCase):
 
     @patch('ranking_api.services.ItemService')
     def test_get_ranking_items_error(self, mock_service):
-        mock_service.get_items.return_value = []
+        mock_service.get_all_items.return_value = []
 
         url = reverse('ranking-items', kwargs={'ranking_id': 100})
 

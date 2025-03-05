@@ -9,5 +9,5 @@ class ItemService:
     def get_item(self, ranking_id, item_id) -> Item:
         return self.item_repository.get_item(ranking_id, item_id)
 
-    def get_items(self, ranking_id) -> list[Item]:
+    def get_all_items(self, ranking_id) -> list[Item]:
         return self.item_repository.get_all_items(ranking_id)

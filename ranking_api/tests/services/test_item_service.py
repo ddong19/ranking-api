@@ -37,7 +37,7 @@ class TestItemService:
     def test_get_items_success(self, fake_items_list):
         self.mock_item_repository.get_all_items.return_value = fake_items_list
 
-        retrieved_items = self.item_service.get_items(fake_items_list[0].ranking.id)
+        retrieved_items = self.item_service.get_all_items(fake_items_list[0].ranking.id)
 
         assert len(retrieved_items) == 2
         assert retrieved_items[0].name == fake_items_list[0].name
@@ -48,7 +48,7 @@ class TestItemService:
     def test_get_items_wrong_ranking(self):
         self.mock_item_repository.get_all_items.return_value = None
         non_existent_ranking_id = 999
-        retrieved_items = self.item_service.get_items(non_existent_ranking_id)
+        retrieved_items = self.item_service.get_all_items(non_existent_ranking_id)
 
         assert retrieved_items is None
         self.mock_item_repository.get_all_items.assert_called_once_with(non_existent_ranking_id)
