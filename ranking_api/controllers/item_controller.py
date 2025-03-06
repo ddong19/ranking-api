@@ -3,15 +3,19 @@ from rest_framework import viewsets
 
 from ranking_api.services.item_service import ItemService
 from ranking_api.repositories.item_repository import ItemRepository
+from ranking_api.repositories.ranking_repository import RankingRepository
+from services.ranking_service import RankingService
 
 
 class ItemController(viewsets.ViewSet):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
         self.item_service = ItemService(item_repository=ItemRepository())
+        self.ranking_service = RankingService(ranking_repository=RankingRepository())
 
     def get_ranking_items(self, request, ranking_id: int):
-        #TODO: return 404 if ranking_id doesn't exist
+        if self.ranking_service.get_ranking(ranking_id) is None:
+            return JsonResponse({'error': 'Ranking not found'}, status=404)
         try:
             items = self.item_service.get_all_items(ranking_id)
             return JsonResponse({
@@ -28,6 +32,8 @@ class ItemController(viewsets.ViewSet):
             return JsonResponse({'error': str(e)}, status=500)
 
     def get_ranking_item(self, request, ranking_id: int, item_id: int):
+        if self.ranking_service.get_ranking(ranking_id) is None:
+            return JsonResponse({'error': 'Ranking not found'}, status=404)
         try:
             item = self.item_service.get_item(ranking_id, item_id)
 

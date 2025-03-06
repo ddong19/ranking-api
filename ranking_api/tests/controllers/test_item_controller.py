@@ -14,6 +14,11 @@ class TestItemController(TestCase):
             description="The best places to visit",
         )
 
+        self.empty_ranking = RankingList.objects.create(
+            title="Empty",
+            description="No items",
+        )
+
         self.items = [
             Item.objects.create(
                 ranking=self.ranking,
@@ -54,16 +59,25 @@ class TestItemController(TestCase):
 
 
     @patch('ranking_api.services.ItemService')
-    def test_get_ranking_items_error(self, mock_service):
+    def test_get_ranking_items_empty(self, mock_service):
         mock_service.get_all_items.return_value = []
 
-        url = reverse('ranking-items', kwargs={'ranking_id': 100})
+        url = reverse('ranking-items', kwargs={'ranking_id': self.empty_ranking.id})
 
         response = self.client.get(url)
         self.assertEqual(200, response.status_code)
         data = json.loads(response.content)
         self.assertEqual(data['items'], [])
 
+    @patch('ranking_api.services.ItemService')
+    def test_get_ranking_items_ranking_not_found(self, mock_service):
+        mock_service.get_all_items.return_value = None
+
+        url = reverse('ranking-items', kwargs={'ranking_id': 100})
+
+        response = self.client.get(url)
+        self.assertEqual(404, response.status_code)
+        self.assertEqual(response.content, b'{"error": "Ranking not found"}')
 
     #TODO: test return 404 if ranking_id doesn't exist
 
@@ -80,13 +94,25 @@ class TestItemController(TestCase):
 
 
     @patch('ranking_api.services.ItemService')
-    def test_get_ranking_item_error(self, mock_service):
+    def test_get_ranking_item_not_found(self, mock_service):
         mock_service.get_item.return_value = None
 
-        url = reverse('ranking-item', kwargs={'ranking_id': 100, 'item_id': 100})
+        url = reverse('ranking-item', kwargs={'ranking_id': self.empty_ranking.id, 'item_id': 100})
 
         response = self.client.get(url)
 
         self.assertEqual(404, response.status_code)
+        self.assertEqual(response.content, b'{"error": "Item not found"}')
+
+    @patch('ranking_api.services.ItemService')
+    def test_get_ranking_ranking_not_found(self, mock_service):
+        mock_service.get_item.return_value = None
+
+        url = reverse('ranking-item', kwargs={'ranking_id': 999, 'item_id': 100})
+
+        response = self.client.get(url)
+
+        self.assertEqual(404, response.status_code)
+        self.assertEqual(response.content, b'{"error": "Ranking not found"}')
 
 
