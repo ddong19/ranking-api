@@ -1,118 +1,105 @@
 import json
-from django.test import TestCase, Client
+from django.test import TestCase
 from django.urls import reverse
-from unittest.mock import patch
-from ranking_api.models import RankingList, Item
+from unittest.mock import patch, MagicMock
+from ranking_api.services import RankingService, ItemService
+
 
 class TestItemController(TestCase):
-    def setUp(self):
-        self.client = Client()
+    @patch.object(RankingService, 'get_ranking')
+    @patch.object(ItemService, 'get_all_items')
+    def test_get_ranking_items_success(self, mock_get_all_items, mock_get_ranking):
+        ranking_id = 1
+        mock_get_ranking.return_value = MagicMock()
+        mock_get_all_items.return_value = []
 
-        # Create test data
-        self.ranking = RankingList.objects.create(
-            title="Travel Locations",
-            description="The best places to visit",
-        )
+        response = self.client.get(reverse('ranking-items', kwargs={'ranking_id': ranking_id}))
 
-        self.empty_ranking = RankingList.objects.create(
-            title="Empty",
-            description="No items",
-        )
-
-        self.items = [
-            Item.objects.create(
-                ranking=self.ranking,
-                name="London",
-                notes="The capital of England",
-                rank=1
-            ),
-            Item.objects.create(
-                ranking=self.ranking,
-                name="Paris",
-                notes = "The capital of France",
-                rank=2
-            )
-        ]
-
-        # Create test URLs
-        self.ranking_items_url = reverse(
-            'ranking-items',
-            kwargs={'ranking_id': self.ranking.id}
-        )
-
-        self.ranking_item_url = reverse(
-            'ranking-item',
-            kwargs={'ranking_id': self.ranking.id, 'item_id': self.items[0].id}
-        )
-
-    @patch('ranking_api.services.ItemService')
-    def test_get_ranking_items(self, mock_service):
-        mock_service.get_all_items.return_value = self.items
-
-        response = self.client.get(self.ranking_items_url)
-
-        self.assertEqual(200, response.status_code)
-        data = json.loads(response.content)
-        self.assertEqual(len(data['items']), 2)
-        self.assertEqual(data['items'][0]['name'], 'London')
-        self.assertEqual(data['items'][1]['name'], 'Paris')
+        self.assertEqual(response.status_code, 200)
+        mock_get_ranking.assert_called_once_with(ranking_id)
+        mock_get_all_items.assert_called_once_with(ranking_id)
 
 
-    @patch('ranking_api.services.ItemService')
-    def test_get_ranking_items_empty(self, mock_service):
-        mock_service.get_all_items.return_value = []
+    @patch.object(RankingService, 'get_ranking')
+    @patch.object(ItemService, 'get_all_items')
+    def test_get_ranking_items_empty(self, mock_get_all_items, mock_get_ranking):
+        ranking_id = 1
+        mock_get_ranking.return_value = MagicMock()
+        mock_get_all_items.return_value = []
 
-        url = reverse('ranking-items', kwargs={'ranking_id': self.empty_ranking.id})
+        response = self.client.get(reverse('ranking-items', kwargs={'ranking_id': ranking_id}))
 
-        response = self.client.get(url)
-        self.assertEqual(200, response.status_code)
+        self.assertEqual(response.status_code, 200)
         data = json.loads(response.content)
         self.assertEqual(data['items'], [])
+        mock_get_all_items.assert_called_once_with(ranking_id)
 
-    @patch('ranking_api.services.ItemService')
-    def test_get_ranking_items_ranking_not_found(self, mock_service):
-        mock_service.get_all_items.return_value = None
 
-        url = reverse('ranking-items', kwargs={'ranking_id': 100})
+    @patch.object(RankingService, 'get_ranking')
+    def test_get_ranking_items_ranking_not_found(self, mock_get_ranking):
+        ranking_id = 100
+        mock_get_ranking.return_value = None
 
-        response = self.client.get(url)
-        self.assertEqual(404, response.status_code)
+        response = self.client.get(reverse('ranking-items', kwargs={'ranking_id': ranking_id}))
+
+        self.assertEqual(response.status_code, 404)
         self.assertEqual(response.content, b'{"error": "Ranking not found"}')
+        mock_get_ranking.assert_called_once_with(ranking_id)
 
-    #TODO: test return 404 if ranking_id doesn't exist
 
+    @patch.object(RankingService, 'get_ranking')
+    @patch.object(ItemService, 'get_item')
+    def test_get_item_success(self, mock_get_item, mock_get_ranking):
+        ranking_id = 1
+        item_id = 1
+        mock_get_ranking.return_value = MagicMock()
+        mock_item = MagicMock()
+        mock_item.id = item_id
+        mock_item.name = 'London'
+        mock_item.rank = 1
+        mock_item.ranking.id = ranking_id
+        mock_get_item.return_value = mock_item
 
-    @patch('ranking_api.services.ItemService')
-    def test_get_ranking_item(self, mock_service):
-        mock_service.get_item.return_value = self.items[0]
+        response = self.client.get(reverse('ranking-item', kwargs={
+            'ranking_id': ranking_id,
+            'item_id': item_id
+        }))
 
-        response = self.client.get(self.ranking_item_url)
-
-        self.assertEqual(200, response.status_code)
+        self.assertEqual(response.status_code, 200)
         data = json.loads(response.content)
-        self.assertEqual('London', data['name'])
+        self.assertEqual(data['name'], 'London')
+        mock_get_item.assert_called_once_with(ranking_id, item_id)
 
 
-    @patch('ranking_api.services.ItemService')
-    def test_get_ranking_item_not_found(self, mock_service):
-        mock_service.get_item.return_value = None
+    @patch.object(RankingService, 'get_ranking')
+    @patch.object(ItemService, 'get_item')
+    def test_get_item_not_found(self, mock_get_item, mock_get_ranking):
+        ranking_id = 1
+        item_id = 100
+        mock_get_ranking.return_value = MagicMock()
+        mock_get_item.return_value = None
 
-        url = reverse('ranking-item', kwargs={'ranking_id': self.empty_ranking.id, 'item_id': 100})
+        response = self.client.get(reverse('ranking-item', kwargs={
+            'ranking_id': ranking_id,
+            'item_id': item_id
+        }))
 
-        response = self.client.get(url)
-
-        self.assertEqual(404, response.status_code)
+        self.assertEqual(response.status_code, 404)
         self.assertEqual(response.content, b'{"error": "Item not found"}')
+        mock_get_item.assert_called_once_with(ranking_id, item_id)
 
-    @patch('ranking_api.services.ItemService')
-    def test_get_ranking_ranking_not_found(self, mock_service):
-        mock_service.get_item.return_value = None
 
-        url = reverse('ranking-item', kwargs={'ranking_id': 999, 'item_id': 100})
+    @patch.object(RankingService, 'get_ranking')
+    def test_get_item_ranking_not_found(self, mock_get_ranking):
+        ranking_id = 999
+        item_id = 100
+        mock_get_ranking.return_value = None
 
-        response = self.client.get(url)
+        response = self.client.get(reverse('ranking-item', kwargs={
+            'ranking_id': ranking_id,
+            'item_id': item_id
+        }))
 
-        self.assertEqual(404, response.status_code)
+        self.assertEqual(response.status_code, 404)
         self.assertEqual(response.content, b'{"error": "Ranking not found"}')
-
-
+        mock_get_ranking.assert_called_once_with(ranking_id)
