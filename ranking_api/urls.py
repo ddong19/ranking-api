@@ -18,6 +18,7 @@ from django.contrib import admin
 from django.urls import path
 
 from ranking_api.controllers.item_controller import ItemController
+from ranking_api.controllers.ranking_controller import RankingController
 
 urlpatterns = [
     path('admin/', admin.site.urls),
@@ -27,5 +28,11 @@ urlpatterns = [
     path('api/rankings/<int:ranking_id>/item/<int:item_id>/',
          ItemController.as_view({'get': 'get_ranking_item'}),
          name='ranking-item'),
+    path('api/rankings/',
+         RankingController.as_view({'get': 'get_all_rankings'}),
+         name='rankings-list'),
+    path('api/rankings/<int:ranking_id>/',
+         RankingController.as_view({'get': 'get_ranking'}),
+         name='ranking-detail'),
 
 ]

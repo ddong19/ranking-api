@@ -4,7 +4,7 @@ from rest_framework import viewsets
 from ranking_api.services.item_service import ItemService
 from ranking_api.repositories.item_repository import ItemRepository
 from ranking_api.repositories.ranking_repository import RankingRepository
-from services.ranking_service import RankingService
+from ranking_api.services.ranking_service import RankingService
 
 
 class ItemController(viewsets.ViewSet):
@@ -12,6 +12,7 @@ class ItemController(viewsets.ViewSet):
         super().__init__(**kwargs)
         self.item_service = ItemService(item_repository=ItemRepository())
         self.ranking_service = RankingService(ranking_repository=RankingRepository())
+
 
     def get_ranking_items(self, request, ranking_id: int):
         if self.ranking_service.get_ranking(ranking_id) is None:
@@ -30,6 +31,7 @@ class ItemController(viewsets.ViewSet):
             })
         except Exception as e:
             return JsonResponse({'error': str(e)}, status=500)
+
 
     def get_ranking_item(self, request, ranking_id: int, item_id: int):
         if self.ranking_service.get_ranking(ranking_id) is None:
