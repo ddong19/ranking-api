@@ -12,3 +12,6 @@ class RankingService:
 
     def get_all_rankings(self) -> list[RankingList]:
         return self.ranking_repository.get_all_rankings()
+
+    def create_ranking(self, title: str, description: str = None) -> RankingList:
+        return self.ranking_repository.create_ranking(title, description)

@@ -13,3 +13,10 @@ class RankingRepository:
 
     def get_all_rankings(self) -> list[RankingList]:
         return list(self.model.objects.all())
+
+    def create_ranking(self, title: str, description: str = None) -> RankingList:
+        return self.model.objects.create(
+            title=title,
+            description=description if description is not None else ''
+        )
+

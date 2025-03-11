@@ -6,13 +6,14 @@ from ranking_api.repositories.ranking_repository import RankingRepository
 from ranking_api.services.ranking_service import RankingService
 
 
-class TestRankingService:
+class BaseTestRankingService:
     @pytest.fixture(autouse=True)
     def setup(self):
         self.mock_ranking_repository = Mock(spec=RankingRepository)
         self.ranking_service = RankingService(ranking_repository=self.mock_ranking_repository)
 
 
+class TestGetRanking(BaseTestRankingService):
     def test_get_ranking_success(self, fake_ranking):
         self.mock_ranking_repository.get_ranking.return_value = fake_ranking
 
@@ -32,6 +33,8 @@ class TestRankingService:
         assert retrieved_ranking is None
         self.mock_ranking_repository.get_ranking.assert_called_once_with(non_existent_ranking_id)
 
+
+class TestGetAllRankings(BaseTestRankingService):
     def test_get_all_rankings(self, fake_ranking_list):
         self.mock_ranking_repository.get_all_rankings.return_value = fake_ranking_list
 
@@ -44,26 +47,53 @@ class TestRankingService:
         self.mock_ranking_repository.get_all_rankings.assert_called_once()
 
 
+class TestCreateRanking(BaseTestRankingService):
+    def test_create_ranking_with_title_only(self):
+        expected_ranking = RankingList(title="Test Title")
+        self.mock_ranking_repository.create_ranking.return_value = expected_ranking
+
+        result = self.ranking_service.create_ranking(title="Test Title")
+
+        self.mock_ranking_repository.create_ranking.assert_called_once_with("Test Title", None)
+        assert result == expected_ranking
+
+    def test_create_ranking_with_title_and_description(self):
+        expected_ranking = RankingList(title="Test Title", description="Test Description")
+        self.mock_ranking_repository.create_ranking.return_value = expected_ranking
+
+        result = self.ranking_service.create_ranking(
+            title="Test Title",
+            description="Test Description"
+        )
+
+        self.mock_ranking_repository.create_ranking.assert_called_once_with(
+            "Test Title",
+            "Test Description"
+        )
+        assert result == expected_ranking
+
+
 @pytest.fixture
 def fake_ranking():
     return RankingList(
-        title = "test title",
-        description = "test description",
+        title="test title",
+        description="test description",
     )
+
 
 @pytest.fixture
 def fake_ranking_list():
     return [
         RankingList(
-            title = "test title 1",
-            description = "test description 1",
+            title="test title 1",
+            description="test description 1",
         ),
         RankingList(
-            title = "test title 2",
-            description = "test description 2",
+            title="test title 2",
+            description="test description 2",
         ),
         RankingList(
-            title = "test title 3",
-            description = "test description 3",
+            title="test title 3",
+            description="test description 3",
         )
     ]

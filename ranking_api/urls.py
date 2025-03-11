@@ -29,10 +29,12 @@ urlpatterns = [
          ItemController.as_view({'get': 'get_ranking_item'}),
          name='ranking-item'),
     path('api/rankings/',
-         RankingController.as_view({'get': 'get_all_rankings'}),
+         RankingController.as_view({
+             'get': 'get_all_rankings',
+             'post': 'create_ranking'
+         }),
          name='rankings-list'),
     path('api/rankings/<int:ranking_id>/',
          RankingController.as_view({'get': 'get_ranking'}),
          name='ranking-detail'),
-
 ]
