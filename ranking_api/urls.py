@@ -35,6 +35,9 @@ urlpatterns = [
          }),
          name='rankings-list'),
     path('api/rankings/<int:ranking_id>/',
-         RankingController.as_view({'get': 'get_ranking'}),
-         name='ranking-detail'),
+         RankingController.as_view({
+             'get': 'get_ranking',
+             'delete': 'delete_ranking'
+         }),
+         name='ranking-detail')
 ]

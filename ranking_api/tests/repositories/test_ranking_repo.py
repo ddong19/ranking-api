@@ -69,6 +69,19 @@ class TestRankingRepository:
             assert db_ranking.title == "Test Ranking"
             assert db_ranking.description == ""
 
+    class TestDeleteRanking:
+        def test_delete_ranking_success(self, repository, ranking):
+            response = repository.delete_ranking(ranking.id)
+
+            assert response is True
+            assert RankingList.objects.filter(id=ranking.id).exists() is False
+
+        def test_delete_non_existent_ranking(self, repository):
+            non_existent_id = 999
+
+            response = repository.delete_ranking(non_existent_id)
+
+            assert response is False
 
 @pytest.fixture
 def repository():

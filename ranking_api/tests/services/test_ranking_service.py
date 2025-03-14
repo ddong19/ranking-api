@@ -72,6 +72,23 @@ class TestCreateRanking(BaseTestRankingService):
         )
         assert result == expected_ranking
 
+class TestDeleteRanking(BaseTestRankingService):
+    def test_delete_ranking_success(self):
+        ranking_id = 1
+
+        self.ranking_service.delete_ranking(ranking_id)
+
+        self.mock_ranking_repository.delete_ranking.assert_called_once_with(ranking_id)
+
+    def test_delete_ranking_not_found_propagates_exception(self):
+        ranking_id = 999
+        self.mock_ranking_repository.delete_ranking.return_value = False
+
+        with pytest.raises(Exception, match="Failed to delete ranking:"):
+            self.ranking_service.delete_ranking(ranking_id)
+
+        self.mock_ranking_repository.delete_ranking.assert_called_once_with(ranking_id)
+
 
 @pytest.fixture
 def fake_ranking():

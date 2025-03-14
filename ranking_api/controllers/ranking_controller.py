@@ -1,9 +1,9 @@
 from django.http import JsonResponse
 from rest_framework import viewsets
-from rest_framework.decorators import action
 
 from ranking_api.repositories.ranking_repository import RankingRepository
 from ranking_api.services.ranking_service import RankingService
+from ranking_api.models import RankingList
 
 class RankingController(viewsets.ViewSet):
     def __init__(self, **kwargs):
@@ -54,3 +54,13 @@ class RankingController(viewsets.ViewSet):
             }, status=201)
         except Exception as e:
             return JsonResponse({'error': str(e)}, status=500)
+
+    def delete_ranking(self, request, ranking_id: int):
+        try:
+            self.ranking_service.delete_ranking(ranking_id)
+            return JsonResponse({'success': True})
+        except Exception as e:
+            if "Failed to delete ranking:" in str(e) and "DoesNotExist" in str(e):
+                return JsonResponse({'error': 'Ranking not found'}, status=404)
+            return JsonResponse({'error': str(e)}, status=500)
+

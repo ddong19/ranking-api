@@ -20,3 +20,12 @@ class RankingRepository:
             description=description if description is not None else ''
         )
 
+    def delete_ranking(self, ranking_id: int) -> bool:
+        try:
+            ranking = self.model.objects.get(id=ranking_id)
+            ranking.delete()
+            return True
+        except self.model.DoesNotExist:
+            return False
+
+

@@ -15,3 +15,11 @@ class RankingService:
 
     def create_ranking(self, title: str, description: str = None) -> RankingList:
         return self.ranking_repository.create_ranking(title, description)
+
+    def delete_ranking(self, ranking_id: int):
+        try:
+            success = self.ranking_repository.delete_ranking(ranking_id)
+            if not success:
+                raise RankingList.DoesNotExist
+        except Exception as e:
+            raise Exception(f"Failed to delete ranking: {str(e)}")

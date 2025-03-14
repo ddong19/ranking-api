@@ -5,8 +5,8 @@ from ranking_api.services.ranking_service import RankingService
 from ranking_api.models import RankingList
 
 
+@patch.object(RankingService, 'get_all_rankings')
 class TestGetAllRankingsEndpoint(TestCase):
-    @patch.object(RankingService, 'get_all_rankings')
     def test_get_all_rankings_success(self, mock_get_all_rankings):
         mock_ranking1 = MagicMock()
         mock_ranking1.title = "Best Movies"
@@ -35,7 +35,6 @@ class TestGetAllRankingsEndpoint(TestCase):
         })
         mock_get_all_rankings.assert_called_once()
 
-    @patch.object(RankingService, 'get_all_rankings')
     def test_get_all_rankings_empty(self, mock_get_all_rankings):
         mock_get_all_rankings.return_value = []
 
@@ -45,7 +44,6 @@ class TestGetAllRankingsEndpoint(TestCase):
         self.assertEqual(response.json(), {'rankings': []})
         mock_get_all_rankings.assert_called_once()
 
-    @patch.object(RankingService, 'get_all_rankings')
     def test_get_all_rankings_error(self, mock_get_all_rankings):
         mock_get_all_rankings.side_effect = Exception("Database error")
 
@@ -56,8 +54,8 @@ class TestGetAllRankingsEndpoint(TestCase):
         mock_get_all_rankings.assert_called_once()
 
 
+@patch.object(RankingService, 'get_ranking')
 class TestGetRankingDetailEndpoint(TestCase):
-    @patch.object(RankingService, 'get_ranking')
     def test_get_ranking_success(self, mock_get_ranking):
         ranking_id = 1
         mock_ranking = MagicMock()
@@ -74,7 +72,6 @@ class TestGetRankingDetailEndpoint(TestCase):
         })
         mock_get_ranking.assert_called_once_with(ranking_id)
 
-    @patch.object(RankingService, 'get_ranking')
     def test_get_ranking_not_found(self, mock_get_ranking):
         ranking_id = 999
         mock_get_ranking.return_value = None
@@ -85,7 +82,6 @@ class TestGetRankingDetailEndpoint(TestCase):
         self.assertEqual(response.json(), {'error': 'Ranking not found'})
         mock_get_ranking.assert_called_once_with(ranking_id)
 
-    @patch.object(RankingService, 'get_ranking')
     def test_get_ranking_error(self, mock_get_ranking):
         ranking_id = 1
         mock_get_ranking.side_effect = Exception("Database error")
@@ -96,8 +92,9 @@ class TestGetRankingDetailEndpoint(TestCase):
         self.assertEqual(response.json(), {'error': 'Database error'})
         mock_get_ranking.assert_called_once_with(ranking_id)
 
+
+@patch.object(RankingService, 'create_ranking')
 class TestCreateRankingEndpoint(TestCase):
-    @patch.object(RankingService, 'create_ranking')
     def test_create_ranking_success(self, mock_create_ranking):
         expected_ranking = RankingList(title="Best Books", description="Must-read books")
         mock_create_ranking.return_value = expected_ranking
@@ -117,7 +114,6 @@ class TestCreateRankingEndpoint(TestCase):
             description='Must-read books'
         )
 
-    @patch.object(RankingService, 'create_ranking')
     def test_create_ranking_missing_description(self, mock_create_ranking):
         expected_ranking = RankingList(title="Best Books")
         mock_create_ranking.return_value = expected_ranking
@@ -136,7 +132,6 @@ class TestCreateRankingEndpoint(TestCase):
             description=None
         )
 
-    @patch.object(RankingService, 'create_ranking')
     def test_create_ranking_missing_title(self, mock_create_ranking):
         response = self.client.post(reverse('rankings-list'), {
             'description': 'Must-read books'
@@ -148,7 +143,6 @@ class TestCreateRankingEndpoint(TestCase):
         })
         mock_create_ranking.assert_not_called()
 
-    @patch.object(RankingService, 'create_ranking')
     def test_create_ranking_error(self, mock_create_ranking):
         mock_create_ranking.side_effect = Exception('Database error')
 
@@ -165,3 +159,33 @@ class TestCreateRankingEndpoint(TestCase):
             title='Best Books',
             description='Must-read books'
         )
+
+@patch.object(RankingService, 'delete_ranking')
+class TestDeleteRankingEndpoint(TestCase):
+    def test_delete_ranking_success(self, mocker):
+        ranking_id = 1
+        response = self.client.delete(f'/api/rankings/{ranking_id}/')
+
+        assert response.status_code == 200
+        assert response.json() == {'success': True}
+        mocker.assert_called_once_with(ranking_id)
+
+    def test_delete_ranking_not_found(self, mocker):
+        ranking_id = 999
+        mocker.side_effect = Exception('Failed to delete ranking: DoesNotExist')
+
+        response = self.client.delete(f'/api/rankings/{ranking_id}/')
+
+        assert response.status_code == 404
+        assert response.json() == {'error': 'Ranking not found'}
+        mocker.assert_called_once_with(ranking_id)
+
+    def test_delete_ranking_error(self, mocker):
+        ranking_id = 1
+        mocker.side_effect = Exception('Failed to delete ranking: Unexpected error')
+
+        response = self.client.delete(f'/api/rankings/{ranking_id}/')
+
+        assert response.status_code == 500
+        assert response.json() == {'error': 'Failed to delete ranking: Unexpected error'}
+        mocker.assert_called_once_with(ranking_id)
