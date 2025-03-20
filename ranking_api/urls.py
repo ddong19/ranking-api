@@ -37,7 +37,8 @@ urlpatterns = [
     path('api/rankings/<int:ranking_id>/',
          RankingController.as_view({
              'get': 'get_ranking',
-             'delete': 'delete_ranking'
+             'delete': 'delete_ranking',
+             'put': 'update_ranking',
          }),
          name='ranking-detail')
 ]

@@ -83,6 +83,70 @@ class TestRankingRepository:
 
             assert response is False
 
+    class TestUpdateRanking:
+        def test_update_ranking_success(self, repository, ranking):
+            new_title = "Updated Travel Locations"
+            new_description = "The updated places to visit"
+
+            updated_ranking = repository.update_ranking(
+                ranking.id,
+                new_title,
+                new_description
+            )
+
+            assert updated_ranking is not None
+            assert updated_ranking.title == new_title
+            assert updated_ranking.description == new_description
+
+            db_ranking = RankingList.objects.get(id=ranking.id)
+            assert db_ranking.title == new_title
+            assert db_ranking.description == new_description
+
+        def test_update_ranking_with_title_only(self, repository, ranking):
+            new_title = "Updated Travel Locations"
+
+            updated_ranking = repository.update_ranking(
+                ranking.id,
+                title=new_title
+            )
+
+            assert updated_ranking is not None
+            assert updated_ranking.title == new_title
+            assert updated_ranking.description == ""
+
+            db_ranking = RankingList.objects.get(id=ranking.id)
+            assert db_ranking.title == new_title
+            assert db_ranking.description == ""
+
+        def test_update_ranking_with_none_description(self, repository, ranking):
+            new_title = "Updated Travel Locations"
+
+            updated_ranking = repository.update_ranking(
+                ranking.id,
+                title=new_title,
+                description=None
+            )
+
+            assert updated_ranking is not None
+            assert updated_ranking.title == new_title
+            assert updated_ranking.description == ""
+
+            db_ranking = RankingList.objects.get(id=ranking.id)
+            assert db_ranking.title == new_title
+            assert db_ranking.description == ""
+
+        def test_update_non_existent_ranking(self, repository):
+            non_existent_id = 999
+
+            updated_ranking = repository.update_ranking(
+                non_existent_id,
+                "New Title",
+                "New Description"
+            )
+
+            assert updated_ranking is None
+
+
 @pytest.fixture
 def repository():
     return RankingRepository()

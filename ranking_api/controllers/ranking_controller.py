@@ -64,3 +64,26 @@ class RankingController(viewsets.ViewSet):
                 return JsonResponse({'error': 'Ranking not found'}, status=404)
             return JsonResponse({'error': str(e)}, status=500)
 
+    def update_ranking(self, request, ranking_id: int):
+        try:
+            title = request.data.get('title')
+            description = request.data.get('description')
+
+            if not title:
+                return JsonResponse({'error': 'title is required'}, status=400)
+
+            ranking = self.ranking_service.update_ranking(
+                ranking_id,
+                title,
+                description
+            )
+            return JsonResponse({
+                'title': ranking.title,
+                'description': ranking.description
+            })
+        except Exception as e:
+            if "Failed to update ranking:" in str(e) and "DoesNotExist" in str(e):
+                return JsonResponse({'error': 'Ranking not found'}, status=404)
+            return JsonResponse({'error': str(e)}, status=500)
+
+

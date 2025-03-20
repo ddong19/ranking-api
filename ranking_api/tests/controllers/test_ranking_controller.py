@@ -189,3 +189,82 @@ class TestDeleteRankingEndpoint(TestCase):
         assert response.status_code == 500
         assert response.json() == {'error': 'Failed to delete ranking: Unexpected error'}
         mocker.assert_called_once_with(ranking_id)
+
+@patch.object(RankingService, 'update_ranking')
+class TestUpdateRankingEndpoint(TestCase):
+    def test_update_ranking_success(self, mocker):
+        ranking_id = 1
+        request_data = {
+            'title': 'Updated Title',
+            'description': 'Updated Description'
+        }
+
+        mock_ranking = MagicMock()
+        mock_ranking.title = request_data['title']
+        mock_ranking.description = request_data['description']
+        mocker.return_value = mock_ranking
+
+        response = self.client.put(
+            f'/api/rankings/{ranking_id}/',
+            data=request_data,
+            content_type='application/json'
+        )
+
+        assert response.status_code == 200
+        assert response.json() == {
+            'title': request_data['title'],
+            'description': request_data['description']
+        }
+        mocker.assert_called_once_with(1, 'Updated Title', 'Updated Description')
+
+    def test_update_ranking_not_found(self, mocker):
+        ranking_id = 999
+        request_data = {
+            'title': 'Updated Title',
+            'description': 'Updated Description'
+        }
+        mocker.side_effect = Exception('Failed to update ranking: DoesNotExist')
+
+        response = self.client.put(
+            f'/api/rankings/{ranking_id}/',
+            data=request_data,
+            content_type='application/json'
+        )
+
+        assert response.status_code == 404
+        assert response.json() == {'error': 'Ranking not found'}
+        mocker.assert_called_once_with(999, 'Updated Title', 'Updated Description')
+
+    def test_update_ranking_missing_title(self, mocker):
+        ranking_id = 1
+        request_data = {
+            'description': 'Updated Description'
+        }
+
+        response = self.client.put(
+            f'/api/rankings/{ranking_id}/',
+            data=request_data,
+            content_type='application/json'
+        )
+
+        assert response.status_code == 400
+        assert response.json() == {'error': 'title is required'}
+        mocker.assert_not_called()
+
+    def test_update_ranking_error(self, mocker):
+        ranking_id = 1
+        request_data = {
+            'title': 'Updated Title',
+            'description': 'Updated Description'
+        }
+        mocker.side_effect = Exception('Failed to update ranking: Unexpected error')
+
+        response = self.client.put(
+            f'/api/rankings/{ranking_id}/',
+            data=request_data,
+            content_type='application/json'
+        )
+
+        assert response.status_code == 500
+        assert response.json() == {'error': 'Failed to update ranking: Unexpected error'}
+        mocker.assert_called_once_with(1, 'Updated Title', 'Updated Description')

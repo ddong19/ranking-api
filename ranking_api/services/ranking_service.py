@@ -23,3 +23,15 @@ class RankingService:
                 raise RankingList.DoesNotExist
         except Exception as e:
             raise Exception(f"Failed to delete ranking: {str(e)}")
+
+    def update_ranking(self, ranking_id: int, title: str, description: str = None) -> RankingList:
+        try:
+            updated_ranking = self.ranking_repository.update_ranking(ranking_id, title, description)
+            if not updated_ranking:
+                raise RankingList.DoesNotExist()
+            return updated_ranking
+        except Exception as e:
+            raise Exception(f"Failed to update ranking: {str(e)}")
+
+
+

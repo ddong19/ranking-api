@@ -28,4 +28,14 @@ class RankingRepository:
         except self.model.DoesNotExist:
             return False
 
+    def update_ranking(self, ranking_id: int, title: str, description: str = None) -> Optional[RankingList]:
+        try:
+            ranking = self.model.objects.get(id=ranking_id)
+            ranking.title = title
+            ranking.description = description if description is not None else ''
+            ranking.save()
+            return ranking
+        except self.model.DoesNotExist:
+            return None
+
 

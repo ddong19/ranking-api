@@ -89,6 +89,44 @@ class TestDeleteRanking(BaseTestRankingService):
 
         self.mock_ranking_repository.delete_ranking.assert_called_once_with(ranking_id)
 
+class TestUpdateRanking(BaseTestRankingService):
+    def test_update_ranking_success(self):
+        ranking_id = 1
+        title = "Updated Title"
+        description = "Updated Description"
+
+        updated_ranking = RankingList(id=ranking_id, title=title, description=description)
+        self.mock_ranking_repository.update_ranking.return_value = updated_ranking
+
+        result = self.ranking_service.update_ranking(ranking_id, title, description)
+
+        self.mock_ranking_repository.update_ranking.assert_called_once_with(ranking_id, title, description)
+        assert result == updated_ranking
+
+    def test_update_ranking_not_found_propagates_exception(self):
+        ranking_id = 999
+        title = "New Title"
+        description = "New Description"
+        self.mock_ranking_repository.update_ranking.return_value = None
+
+        with pytest.raises(Exception, match="Failed to update ranking:"):
+            self.ranking_service.update_ranking(ranking_id, title, description)
+
+        self.mock_ranking_repository.update_ranking.assert_called_once_with(ranking_id, title, description)
+
+    def test_update_ranking_with_title_only(self):
+        ranking_id = 1
+        title = "Updated Title"
+
+        updated_ranking = RankingList(id=ranking_id, title=title, description="")
+        self.mock_ranking_repository.update_ranking.return_value = updated_ranking
+
+        result = self.ranking_service.update_ranking(ranking_id, title)
+
+        self.mock_ranking_repository.update_ranking.assert_called_once_with(ranking_id, title, None)
+        assert result == updated_ranking
+
+
 
 @pytest.fixture
 def fake_ranking():
