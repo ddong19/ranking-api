@@ -22,23 +22,32 @@ from ranking_api.controllers.ranking_controller import RankingController
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('api/rankings/<int:ranking_id>/items/',
-         ItemController.as_view({'get': 'get_ranking_items'}),
-         name='ranking-items'),
-    path('api/rankings/<int:ranking_id>/item/<int:item_id>/',
-         ItemController.as_view({'get': 'get_ranking_item'}),
-         name='ranking-item'),
-    path('api/rankings/',
-         RankingController.as_view({
+
+    # ITEM ENDPOINTS
+    path('api/rankings/<int:ranking_id>/items/', ItemController.as_view(
+        {
+            'get': 'get_ranking_items'
+        }
+    ), name='ranking-items'),
+    path('api/rankings/<int:ranking_id>/item/<int:item_id>/', ItemController.as_view(
+        {
+            'get': 'get_ranking_item'
+        }
+    ), name='ranking-item'),
+
+    # RANKING ENDPOINTS
+    path('api/rankings/',RankingController.as_view(
+        {
              'get': 'get_all_rankings',
              'post': 'create_ranking'
-         }),
-         name='rankings-list'),
-    path('api/rankings/<int:ranking_id>/',
-         RankingController.as_view({
+        }
+    ), name='rankings-list'),
+
+    path('api/rankings/<int:ranking_id>/', RankingController.as_view(
+        {
              'get': 'get_ranking',
              'delete': 'delete_ranking',
              'put': 'update_ranking',
-         }),
-         name='ranking-detail')
+        }
+    ), name='ranking-detail')
 ]
