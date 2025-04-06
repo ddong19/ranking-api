@@ -16,6 +16,7 @@ class RankingController(viewsets.ViewSet):
             return JsonResponse({
                 'rankings': [
                     {
+                        'id': ranking.id,
                         'title': ranking.title,
                         'description': ranking.description
                     } for ranking in rankings
@@ -30,6 +31,7 @@ class RankingController(viewsets.ViewSet):
             if ranking is None:
                 return JsonResponse({'error': 'Ranking not found'}, status=404)
             return JsonResponse({
+                'id': ranking.id,
                 'title': ranking.title,
                 'description': ranking.description
             })

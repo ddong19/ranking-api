@@ -9,10 +9,12 @@ from ranking_api.models import RankingList
 class TestGetAllRankingsEndpoint(TestCase):
     def test_get_all_rankings_success(self, mock_get_all_rankings):
         mock_ranking1 = MagicMock()
+        mock_ranking1.id = 1
         mock_ranking1.title = "Best Movies"
         mock_ranking1.description = "Top movies of all time"
 
         mock_ranking2 = MagicMock()
+        mock_ranking2.id = 2
         mock_ranking2.title = "Best Books"
         mock_ranking2.description = "Must-read books"
 
@@ -24,10 +26,12 @@ class TestGetAllRankingsEndpoint(TestCase):
         self.assertEqual(response.json(), {
             'rankings': [
                 {
+                    'id': 1,
                     'title': 'Best Movies',
                     'description': 'Top movies of all time'
                 },
                 {
+                    'id': 2,
                     'title': 'Best Books',
                     'description': 'Must-read books'
                 }
@@ -59,6 +63,7 @@ class TestGetRankingDetailEndpoint(TestCase):
     def test_get_ranking_success(self, mock_get_ranking):
         ranking_id = 1
         mock_ranking = MagicMock()
+        mock_ranking.id = ranking_id
         mock_ranking.title = "Best Movies"
         mock_ranking.description = "Top movies of all time"
         mock_get_ranking.return_value = mock_ranking
@@ -67,6 +72,7 @@ class TestGetRankingDetailEndpoint(TestCase):
 
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.json(), {
+            'id': 1,
             'title': 'Best Movies',
             'description': 'Top movies of all time'
         })

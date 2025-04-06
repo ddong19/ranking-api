@@ -20,7 +20,7 @@ class RankingService:
         try:
             success = self.ranking_repository.delete_ranking(ranking_id)
             if not success:
-                raise RankingList.DoesNotExist
+                raise RankingList.DoesNotExist()
         except Exception as e:
             raise Exception(f"Failed to delete ranking: {str(e)}")
 

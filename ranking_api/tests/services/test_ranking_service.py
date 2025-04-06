@@ -20,6 +20,7 @@ class TestGetRanking(BaseTestRankingService):
         retrieved_ranking = self.ranking_service.get_ranking(fake_ranking.id)
 
         assert retrieved_ranking is not None
+        assert retrieved_ranking.id == fake_ranking.id
         assert retrieved_ranking.title == fake_ranking.title
         assert retrieved_ranking.description == fake_ranking.description
         self.mock_ranking_repository.get_ranking.assert_called_once_with(fake_ranking.id)
@@ -131,6 +132,7 @@ class TestUpdateRanking(BaseTestRankingService):
 @pytest.fixture
 def fake_ranking():
     return RankingList(
+        id = 1,
         title="test title",
         description="test description",
     )
