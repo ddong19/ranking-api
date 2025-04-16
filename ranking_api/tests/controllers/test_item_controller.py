@@ -56,6 +56,31 @@ class TestItemController(TestCase):
         mock_item = MagicMock()
         mock_item.id = item_id
         mock_item.name = 'London'
+        mock_item.notes = "some notes"
+        mock_item.rank = 1
+        mock_item.ranking.id = ranking_id
+        mock_get_item.return_value = mock_item
+
+        response = self.client.get(reverse('ranking-item', kwargs={
+            'ranking_id': ranking_id,
+            'item_id': item_id
+        }))
+
+        self.assertEqual(response.status_code, 200)
+        data = json.loads(response.content)
+        self.assertEqual(data['name'], 'London')
+        mock_get_item.assert_called_once_with(ranking_id, item_id)
+
+    @patch.object(RankingService, 'get_ranking')
+    @patch.object(ItemService, 'get_item')
+    def test_get_item_no_notes_success(self, mock_get_item, mock_get_ranking):
+        ranking_id = 1
+        item_id = 1
+        mock_get_ranking.return_value = MagicMock()
+        mock_item = MagicMock()
+        mock_item.id = item_id
+        mock_item.name = 'London'
+        mock_item.notes = None
         mock_item.rank = 1
         mock_item.ranking.id = ranking_id
         mock_get_item.return_value = mock_item

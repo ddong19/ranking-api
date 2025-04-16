@@ -16,7 +16,7 @@ class TestGetAllRankingsEndpoint(TestCase):
         mock_ranking2 = MagicMock()
         mock_ranking2.id = 2
         mock_ranking2.title = "Best Books"
-        mock_ranking2.description = "Must-read books"
+        mock_ranking2.description = None
 
         mock_get_all_rankings.return_value = [mock_ranking1, mock_ranking2]
 
@@ -33,7 +33,7 @@ class TestGetAllRankingsEndpoint(TestCase):
                 {
                     'id': 2,
                     'title': 'Best Books',
-                    'description': 'Must-read books'
+                    'description': None
                 }
             ]
         })
