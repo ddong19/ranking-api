@@ -24,7 +24,7 @@ class ItemController(viewsets.ViewSet):
                     {
                         'id': item.id,
                         'name': item.name,
-                        'notes': item.notes or None,
+                        'notes': item.notes,
                         'rank': item.rank,
                         'ranking_id': item.ranking.id
                     } for item in items
@@ -46,7 +46,7 @@ class ItemController(viewsets.ViewSet):
             return JsonResponse({
                 'id': item.id,
                 'name': item.name,
-                'notes': item.notes or None,
+                'notes': item.notes,
                 'rank': item.rank,
                 'ranking_id': item.ranking.id
             })

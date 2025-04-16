@@ -80,7 +80,7 @@ class TestItemController(TestCase):
         mock_item = MagicMock()
         mock_item.id = item_id
         mock_item.name = 'London'
-        mock_item.notes = None
+        mock_item.notes = ""
         mock_item.rank = 1
         mock_item.ranking.id = ranking_id
         mock_get_item.return_value = mock_item

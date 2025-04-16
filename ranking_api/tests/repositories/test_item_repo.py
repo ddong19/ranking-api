@@ -4,32 +4,68 @@ from ranking_api.repositories.item_repository import ItemRepository
 
 @pytest.mark.django_db
 class TestItemRepository:
+    class TestGetItem:
+        def test_get_chicago_from_cities_ranking(self, repository, cities_ranking, cities_item):
+            retrieved_item = repository.get_item(cities_ranking.id, cities_item.id)
 
-    def test_get_chicago_from_cities_ranking(self, repository, cities_ranking, cities_item):
-        retrieved_item = repository.get_item(cities_ranking.id, cities_item.id)
+            assert retrieved_item is not None
+            assert retrieved_item.name == "Chicago"
+            assert retrieved_item.ranking.title == "Cities"
 
-        assert retrieved_item is not None
-        assert retrieved_item.name == "Chicago"
-        assert retrieved_item.ranking.title == "Cities"
+        def test_get_chicago_from_wrong_ranking(self, repository, travel_ranking, cities_item):
+            retrieved_item = repository.get_item(travel_ranking.id, cities_item.id)
 
-    def test_get_chicago_from_wrong_ranking(self, repository, travel_ranking, cities_item):
-        retrieved_item = repository.get_item(travel_ranking.id, cities_item.id)
+            assert retrieved_item is None
 
-        assert retrieved_item is None
+    class TestGetAllItems:
+        def test_get_items_from_travel_ranking(self, repository, travel_ranking, travel_items):
+            retrieved_items = repository.get_all_items(travel_ranking.id)
 
-    def test_get_items_from_travel_ranking(self, repository, travel_ranking, travel_items):
-        retrieved_items = repository.get_all_items(travel_ranking.id)
+            assert len(retrieved_items) == 4
 
-        assert len(retrieved_items) == 4
+        def test_get_items_in_rank_order(self, repository, travel_ranking, travel_items):
+            retrieved_items = repository.get_all_items(travel_ranking.id)
 
+            assert retrieved_items[0].name == "London"
+            assert retrieved_items[1].name == "Paris"
+            assert retrieved_items[2].name == "Rome"
+            assert retrieved_items[3].name == "Berlin"
 
-    def test_get_items_in_rank_order(self, repository, travel_ranking, travel_items):
-        retrieved_items = repository.get_all_items(travel_ranking.id)
+    class TestCreateItem:
+        def test_create_item_success(self, repository, cities_ranking, cities_item):
+            item_name = "Ann Arbor"
+            item_notes = "best school in the world"
+            created_item = repository.create_item(item_name, 1, item_notes)
 
-        assert retrieved_items[0].name == "London"
-        assert retrieved_items[1].name == "Paris"
-        assert retrieved_items[2].name == "Rome"
-        assert retrieved_items[3].name == "Berlin"
+            assert created_item.name == item_name
+            assert created_item.notes == item_notes
+            assert created_item.rank == 2
+            assert created_item.ranking_id == 1
+            assert created_item.ranking.title == cities_ranking.title
+
+        def test_create_item_with_no_notes(self, repository, cities_ranking, cities_item):
+            item_name = "Ann Arbor"
+            item_notes = None
+            created_item = repository.create_item(item_name, 1, item_notes)
+
+            assert created_item.name == item_name
+            assert created_item.notes == ""
+            assert created_item.rank == 2
+            assert created_item.ranking_id == 1
+
+        def test_create_multiple_items_with_correct_rank(self, repository, cities_ranking, cities_item):
+            item1_name = "Ann Arbor"
+            item1_notes = "best school in the world"
+
+            item2_name = "Chicago"
+
+            created_item1 = repository.create_item(item1_name, 1, item1_notes)
+            created_item2 = repository.create_item(item2_name, 1)
+
+            assert created_item1.name == item1_name
+            assert created_item1.rank == 2
+            assert created_item2.name == item2_name
+            assert created_item2.rank == 3
 
 @pytest.fixture
 def repository():
@@ -45,6 +81,7 @@ def travel_ranking():
 @pytest.fixture
 def cities_ranking():
     return RankingList.objects.create(
+        id = 1,
         title="Cities",
         description="The best cities to visit",
     )

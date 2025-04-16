@@ -11,7 +11,6 @@ class TestItemService:
         self.mock_item_repository = Mock(spec=ItemRepository)
         self.item_service = ItemService(item_repository=self.mock_item_repository)
 
-
     def test_get_item_success(self, fake_item):
         self.mock_item_repository.get_item.return_value = fake_item
 

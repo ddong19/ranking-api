@@ -18,7 +18,7 @@ class RankingController(viewsets.ViewSet):
                     {
                         'id': ranking.id,
                         'title': ranking.title,
-                        'description': ranking.description or None
+                        'description': ranking.description
                     } for ranking in rankings
                 ]
             })
@@ -33,7 +33,7 @@ class RankingController(viewsets.ViewSet):
             return JsonResponse({
                 'id': ranking.id,
                 'title': ranking.title,
-                'description': ranking.description or None
+                'description': ranking.description
             })
         except Exception as e:
             return JsonResponse({'error': str(e)}, status=500)

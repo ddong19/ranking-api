@@ -20,3 +20,12 @@ class ItemRepository:
             .filter(ranking=ranking_id)
             .order_by('rank')
         )
+
+    def create_item(self, name: str, ranking_id: int, notes: Optional[str] = None) -> Item:
+        num_items = self.model.objects.filter(ranking_id=ranking_id).count()
+        return self.model.objects.create(
+            name = name,
+            notes = notes if notes is not None else '',
+            rank = num_items + 1,
+            ranking_id = ranking_id,
+        )

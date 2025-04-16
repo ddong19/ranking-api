@@ -37,12 +37,12 @@ class TestRankingRepository:
             ranking_title = "Travel Locations"
             ranking_description = "The best places to visit"
 
-            retrieved_ranking = repository.create_ranking(ranking_title, ranking_description)
+            ranking = repository.create_ranking(ranking_title, ranking_description)
 
-            assert retrieved_ranking.title == ranking_title
-            assert retrieved_ranking.description == ranking_description
+            assert ranking.title == ranking_title
+            assert ranking.description == ranking_description
 
-            db_ranking = RankingList.objects.get(id=retrieved_ranking.id)
+            db_ranking = RankingList.objects.get(id=ranking.id)
             assert db_ranking.title == ranking_title
             assert db_ranking.description == ranking_description
 
