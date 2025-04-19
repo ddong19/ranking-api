@@ -5,12 +5,13 @@ from ranking_api.repositories.item_repository import ItemRepository
 from ranking_api.services.item_service import ItemService
 
 
-class TestItemService:
+class BaseTestItemService:
     @pytest.fixture(autouse=True)
     def setup(self):
         self.mock_item_repository = Mock(spec=ItemRepository)
         self.item_service = ItemService(item_repository=self.mock_item_repository)
 
+class TestGetItem(BaseTestItemService):
     def test_get_item_success(self, fake_item):
         self.mock_item_repository.get_item.return_value = fake_item
 
@@ -32,7 +33,7 @@ class TestItemService:
         assert retrieved_item is None
         self.mock_item_repository.get_item.assert_called_once_with(non_existent_ranking_id, fake_item.id)
 
-
+class TestGetAllItems(BaseTestItemService):
     def test_get_items_success(self, fake_items_list):
         self.mock_item_repository.get_all_items.return_value = fake_items_list
 
@@ -52,6 +53,23 @@ class TestItemService:
         assert retrieved_items is None
         self.mock_item_repository.get_all_items.assert_called_once_with(non_existent_ranking_id)
 
+class TestCreateItem(BaseTestItemService):
+    def test_create_item_with_name_success(self, fake_ranking):
+        fake_item_name_only = Item(name="test", ranking_id=fake_ranking.id, rank=1)
+        self.mock_item_repository.create_item.return_value = fake_item_name_only
+
+        created_item = self.item_service.create_item(fake_item_name_only.name, fake_ranking.id)
+        assert created_item.name == fake_item_name_only.name
+        assert created_item.notes == fake_item_name_only.notes
+        self.mock_item_repository.create_item.assert_called_once_with(fake_item_name_only.name, fake_ranking.id, fake_item_name_only.notes)
+
+    def test_create_item_with_notes_success(self, fake_ranking, fake_item):
+        self.mock_item_repository.create_item.return_value = fake_item
+
+        created_item = self.item_service.create_item(fake_item.name, fake_ranking.id, fake_item.notes)
+        assert created_item.notes == fake_item.notes
+        assert created_item.notes == fake_item.notes
+        self.mock_item_repository.create_item.assert_called_once_with(fake_item.name, fake_ranking.id, fake_item.notes)
 
 @pytest.fixture
 def fake_ranking():

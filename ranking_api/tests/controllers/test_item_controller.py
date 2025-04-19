@@ -3,11 +3,13 @@ from django.test import TestCase
 from django.urls import reverse
 from unittest.mock import patch, MagicMock
 from ranking_api.services import RankingService, ItemService
+from ranking_api.models import Item
 
 
-class TestItemController(TestCase):
-    @patch.object(RankingService, 'get_ranking')
-    @patch.object(ItemService, 'get_all_items')
+@patch.object(RankingService, 'get_ranking')
+@patch.object(ItemService, 'get_all_items')
+class TestGetAllRankingItems(TestCase):
+
     def test_get_ranking_items_success(self, mock_get_all_items, mock_get_ranking):
         ranking_id = 1
         mock_get_ranking.return_value = MagicMock()
@@ -20,8 +22,6 @@ class TestItemController(TestCase):
         mock_get_all_items.assert_called_once_with(ranking_id)
 
 
-    @patch.object(RankingService, 'get_ranking')
-    @patch.object(ItemService, 'get_all_items')
     def test_get_ranking_items_empty(self, mock_get_all_items, mock_get_ranking):
         ranking_id = 1
         mock_get_ranking.return_value = MagicMock()
@@ -35,8 +35,7 @@ class TestItemController(TestCase):
         mock_get_all_items.assert_called_once_with(ranking_id)
 
 
-    @patch.object(RankingService, 'get_ranking')
-    def test_get_ranking_items_ranking_not_found(self, mock_get_ranking):
+    def test_get_ranking_items_ranking_not_found(self, mock_get_item, mock_get_ranking):
         ranking_id = 100
         mock_get_ranking.return_value = None
 
@@ -46,9 +45,9 @@ class TestItemController(TestCase):
         self.assertEqual(response.content, b'{"error": "Ranking not found"}')
         mock_get_ranking.assert_called_once_with(ranking_id)
 
-
-    @patch.object(RankingService, 'get_ranking')
-    @patch.object(ItemService, 'get_item')
+@patch.object(RankingService, 'get_ranking')
+@patch.object(ItemService, 'get_item')
+class TestGetRankingItem(TestCase):
     def test_get_item_success(self, mock_get_item, mock_get_ranking):
         ranking_id = 1
         item_id = 1
@@ -69,10 +68,10 @@ class TestItemController(TestCase):
         self.assertEqual(response.status_code, 200)
         data = json.loads(response.content)
         self.assertEqual(data['name'], 'London')
+        self.assertEqual(data['notes'], 'some notes')
         mock_get_item.assert_called_once_with(ranking_id, item_id)
 
-    @patch.object(RankingService, 'get_ranking')
-    @patch.object(ItemService, 'get_item')
+
     def test_get_item_no_notes_success(self, mock_get_item, mock_get_ranking):
         ranking_id = 1
         item_id = 1
@@ -96,8 +95,6 @@ class TestItemController(TestCase):
         mock_get_item.assert_called_once_with(ranking_id, item_id)
 
 
-    @patch.object(RankingService, 'get_ranking')
-    @patch.object(ItemService, 'get_item')
     def test_get_item_not_found(self, mock_get_item, mock_get_ranking):
         ranking_id = 1
         item_id = 100
@@ -114,8 +111,7 @@ class TestItemController(TestCase):
         mock_get_item.assert_called_once_with(ranking_id, item_id)
 
 
-    @patch.object(RankingService, 'get_ranking')
-    def test_get_item_ranking_not_found(self, mock_get_ranking):
+    def test_get_item_ranking_not_found(self, mock_get_item, mock_get_ranking):
         ranking_id = 999
         item_id = 100
         mock_get_ranking.return_value = None
