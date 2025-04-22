@@ -71,6 +71,24 @@ class TestCreateItem(BaseTestItemService):
         assert created_item.notes == fake_item.notes
         self.mock_item_repository.create_item.assert_called_once_with(fake_item.name, fake_ranking.id, fake_item.notes)
 
+class TestDeleteItem(BaseTestItemService):
+    def test_delete_item_success(self):
+        item_id = 1
+
+        self.item_service.delete_item(item_id)
+
+        self.mock_item_repository.delete_item.assert_called_once_with(item_id)
+
+    def test_delete_item_not_found(self):
+        item_id = 999
+        self.mock_item_repository.delete_item.return_value = False
+        exception_string = "Item with id " + str(item_id) + " does not exist."
+
+        with pytest.raises(Exception, match=exception_string):
+            self.item_service.delete_item(item_id)
+
+        self.mock_item_repository.delete_item.assert_called_once_with(item_id)
+
 @pytest.fixture
 def fake_ranking():
     return RankingList(

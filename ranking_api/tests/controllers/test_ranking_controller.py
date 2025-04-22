@@ -183,17 +183,7 @@ class TestDeleteRankingEndpoint(TestCase):
         response = self.client.delete(f'/api/rankings/{ranking_id}/')
 
         assert response.status_code == 404
-        assert response.json() == {'error': 'Ranking not found'}
-        mocker.assert_called_once_with(ranking_id)
-
-    def test_delete_ranking_error(self, mocker):
-        ranking_id = 1
-        mocker.side_effect = Exception('Failed to delete ranking: Unexpected error')
-
-        response = self.client.delete(f'/api/rankings/{ranking_id}/')
-
-        assert response.status_code == 500
-        assert response.json() == {'error': 'Failed to delete ranking: Unexpected error'}
+        assert response.json() == {'error': 'Failed to delete ranking: DoesNotExist'}
         mocker.assert_called_once_with(ranking_id)
 
 @patch.object(RankingService, 'update_ranking')

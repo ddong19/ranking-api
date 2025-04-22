@@ -81,11 +81,12 @@ class TestDeleteRanking(BaseTestRankingService):
 
         self.mock_ranking_repository.delete_ranking.assert_called_once_with(ranking_id)
 
-    def test_delete_ranking_not_found_propagates_exception(self):
+    def test_delete_ranking_not_found(self):
         ranking_id = 999
         self.mock_ranking_repository.delete_ranking.return_value = False
+        exception_string = "Ranking with id " + str(ranking_id) + " does not exist."
 
-        with pytest.raises(Exception, match="Failed to delete ranking:"):
+        with pytest.raises(Exception, match=exception_string):
             self.ranking_service.delete_ranking(ranking_id)
 
         self.mock_ranking_repository.delete_ranking.assert_called_once_with(ranking_id)
