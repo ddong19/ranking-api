@@ -34,11 +34,9 @@ class ItemController(viewsets.ViewSet):
             return JsonResponse({'error': str(e)}, status=500)
 
 
-    def get_ranking_item(self, request, ranking_id: int, item_id: int):
-        if self.ranking_service.get_ranking(ranking_id) is None:
-            return JsonResponse({'error': 'Ranking not found'}, status=404)
+    def get_ranking_item(self, request, item_id: int):
         try:
-            item = self.item_service.get_item(ranking_id, item_id)
+            item = self.item_service.get_item(item_id)
 
             if item is None:
                 return JsonResponse({'error': 'Item not found'}, status=404)
@@ -76,3 +74,10 @@ class ItemController(viewsets.ViewSet):
             }, status=201)
         except Exception as e:
             return JsonResponse({'error': str(e)}, status=500)
+
+    def delete_ranking_item(self, request, item_id: int):
+        try:
+            self.item_service.delete_item(item_id)
+            return JsonResponse({'success': True})
+        except Exception as e:
+            return JsonResponse({'error': str(e)}, status=400)

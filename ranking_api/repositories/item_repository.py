@@ -5,10 +5,9 @@ class ItemRepository:
     def __init__(self):
         self.model = Item
 
-    def get_item(self, ranking_id, item_id) -> Optional[Item]:
+    def get_item(self, item_id) -> Optional[Item]:
         try:
             return self.model.objects.get(
-                ranking = ranking_id,
                 id = item_id
             )
         except self.model.DoesNotExist:

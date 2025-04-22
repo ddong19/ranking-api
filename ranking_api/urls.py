@@ -30,9 +30,10 @@ urlpatterns = [
             'post': 'create_ranking_item'
         }
     ), name='ranking-items'),
-    path('api/rankings/<int:ranking_id>/item/<int:item_id>/', ItemController.as_view(
+    path('api/items/<int:item_id>/', ItemController.as_view(
         {
-            'get': 'get_ranking_item'
+            'get': 'get_ranking_item',
+            'delete': 'delete_ranking_item',
         }
     ), name='ranking-item'),
 

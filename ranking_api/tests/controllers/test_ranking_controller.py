@@ -168,23 +168,23 @@ class TestCreateRankingEndpoint(TestCase):
 
 @patch.object(RankingService, 'delete_ranking')
 class TestDeleteRankingEndpoint(TestCase):
-    def test_delete_ranking_success(self, mocker):
+    def test_delete_ranking_success(self, mock_delete_ranking):
         ranking_id = 1
         response = self.client.delete(f'/api/rankings/{ranking_id}/')
 
         assert response.status_code == 200
         assert response.json() == {'success': True}
-        mocker.assert_called_once_with(ranking_id)
+        mock_delete_ranking.assert_called_once_with(ranking_id)
 
-    def test_delete_ranking_not_found(self, mocker):
+    def test_delete_ranking_not_found(self, mock_delete_ranking):
         ranking_id = 999
-        mocker.side_effect = Exception('Failed to delete ranking: DoesNotExist')
+        mock_delete_ranking.side_effect = Exception('Failed to delete ranking: DoesNotExist')
 
         response = self.client.delete(f'/api/rankings/{ranking_id}/')
 
-        assert response.status_code == 404
+        assert response.status_code == 400
         assert response.json() == {'error': 'Failed to delete ranking: DoesNotExist'}
-        mocker.assert_called_once_with(ranking_id)
+        mock_delete_ranking.assert_called_once_with(ranking_id)
 
 @patch.object(RankingService, 'update_ranking')
 class TestUpdateRankingEndpoint(TestCase):

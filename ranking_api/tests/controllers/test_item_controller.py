@@ -1,4 +1,6 @@
 import json
+
+from django.http import JsonResponse
 from django.test import TestCase
 from django.urls import reverse
 from unittest.mock import patch, MagicMock
@@ -61,7 +63,6 @@ class TestGetRankingItem(TestCase):
         mock_get_item.return_value = mock_item
 
         response = self.client.get(reverse('ranking-item', kwargs={
-            'ranking_id': ranking_id,
             'item_id': item_id
         }))
 
@@ -69,7 +70,7 @@ class TestGetRankingItem(TestCase):
         data = json.loads(response.content)
         self.assertEqual(data['name'], 'London')
         self.assertEqual(data['notes'], 'some notes')
-        mock_get_item.assert_called_once_with(ranking_id, item_id)
+        mock_get_item.assert_called_once_with(item_id)
 
 
     def test_get_item_no_notes_success(self, mock_get_item, mock_get_ranking):
@@ -85,45 +86,27 @@ class TestGetRankingItem(TestCase):
         mock_get_item.return_value = mock_item
 
         response = self.client.get(reverse('ranking-item', kwargs={
-            'ranking_id': ranking_id,
             'item_id': item_id
         }))
 
         self.assertEqual(response.status_code, 200)
         data = json.loads(response.content)
         self.assertEqual(data['name'], 'London')
-        mock_get_item.assert_called_once_with(ranking_id, item_id)
+        mock_get_item.assert_called_once_with(item_id)
 
 
     def test_get_item_not_found(self, mock_get_item, mock_get_ranking):
-        ranking_id = 1
         item_id = 100
         mock_get_ranking.return_value = MagicMock()
         mock_get_item.return_value = None
 
         response = self.client.get(reverse('ranking-item', kwargs={
-            'ranking_id': ranking_id,
             'item_id': item_id
         }))
 
         self.assertEqual(response.status_code, 404)
         self.assertEqual(response.content, b'{"error": "Item not found"}')
-        mock_get_item.assert_called_once_with(ranking_id, item_id)
-
-
-    def test_get_item_ranking_not_found(self, mock_get_item, mock_get_ranking):
-        ranking_id = 999
-        item_id = 100
-        mock_get_ranking.return_value = None
-
-        response = self.client.get(reverse('ranking-item', kwargs={
-            'ranking_id': ranking_id,
-            'item_id': item_id
-        }))
-
-        self.assertEqual(response.status_code, 404)
-        self.assertEqual(response.content, b'{"error": "Ranking not found"}')
-        mock_get_ranking.assert_called_once_with(ranking_id)
+        mock_get_item.assert_called_once_with(item_id)
 
 @patch.object(ItemService, 'create_item')
 class TestCreateRankingItem(TestCase):
@@ -210,3 +193,25 @@ class TestCreateRankingItem(TestCase):
             notes='Simulated DB failure',
             ranking_id=ranking.id
         )
+
+@patch.object(ItemService, 'delete_item')
+class TestDeleteRankingItem(TestCase):
+    def test_delete_item_success(self, mock_delete_item):
+        item_id = 1
+        response = self.client.delete(
+            reverse('ranking-item', kwargs={'item_id': item_id}),
+        )
+
+        assert response.status_code == 200
+        assert response.json() == {'success': True}
+        mock_delete_item.assert_called_once_with(item_id)
+
+    def test_delete_item_not_found(self, mock_delete_item):
+        item_id = 999
+        mock_delete_item.side_effect = Exception('Failed to delete item: DoesNotExist')
+
+        response = self.client.delete(reverse('ranking-item', kwargs={'item_id': item_id}))
+
+        assert response.status_code == 400
+        assert response.json() == {'error': 'Failed to delete item: DoesNotExist'}
+        mock_delete_item.assert_called_once_with(item_id)

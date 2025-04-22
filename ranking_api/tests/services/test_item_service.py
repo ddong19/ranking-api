@@ -15,23 +15,23 @@ class TestGetItem(BaseTestItemService):
     def test_get_item_success(self, fake_item):
         self.mock_item_repository.get_item.return_value = fake_item
 
-        retrieved_item = self.item_service.get_item(fake_item.ranking.id, fake_item.id)
+        retrieved_item = self.item_service.get_item(fake_item.id)
 
         assert retrieved_item is not None
         assert retrieved_item.name == fake_item.name
         assert retrieved_item.notes == fake_item.notes
         assert retrieved_item.rank == fake_item.rank
         assert retrieved_item.ranking.title == fake_item.ranking.title
-        self.mock_item_repository.get_item.assert_called_once_with(fake_item.ranking.id, fake_item.id)
+        self.mock_item_repository.get_item.assert_called_once_with(fake_item.id)
 
 
     def test_item_not_found(self, fake_item):
         self.mock_item_repository.get_item.return_value = None
         non_existent_ranking_id = 999
-        retrieved_item = self.item_service.get_item(non_existent_ranking_id, fake_item.id)
+        retrieved_item = self.item_service.get_item(fake_item.id)
 
         assert retrieved_item is None
-        self.mock_item_repository.get_item.assert_called_once_with(non_existent_ranking_id, fake_item.id)
+        self.mock_item_repository.get_item.assert_called_once_with(fake_item.id)
 
 class TestGetAllItems(BaseTestItemService):
     def test_get_items_success(self, fake_items_list):

@@ -9,8 +9,8 @@ class ItemService:
     def __init__(self, item_repository: ItemRepository):
         self.item_repository = item_repository
 
-    def get_item(self, ranking_id: int, item_id: int) -> Optional[Item]:
-        return self.item_repository.get_item(ranking_id, item_id)
+    def get_item(self, item_id: int) -> Optional[Item]:
+        return self.item_repository.get_item(item_id)
 
     def get_all_items(self, ranking_id: int) -> list[Item]:
         return self.item_repository.get_all_items(ranking_id)

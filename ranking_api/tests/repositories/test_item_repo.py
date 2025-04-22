@@ -6,14 +6,14 @@ from ranking_api.repositories.item_repository import ItemRepository
 class TestItemRepository:
     class TestGetItem:
         def test_get_chicago_from_cities_ranking(self, repository, cities_ranking, cities_item):
-            retrieved_item = repository.get_item(cities_ranking.id, cities_item.id)
+            retrieved_item = repository.get_item(cities_item.id)
 
             assert retrieved_item is not None
             assert retrieved_item.name == "Chicago"
             assert retrieved_item.ranking.title == "Cities"
 
-        def test_get_chicago_from_wrong_ranking(self, repository, travel_ranking, cities_item):
-            retrieved_item = repository.get_item(travel_ranking.id, cities_item.id)
+        def test_get_non_existent_item(self, repository, travel_ranking):
+            retrieved_item = repository.get_item(999)
 
             assert retrieved_item is None
 
