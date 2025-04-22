@@ -67,6 +67,20 @@ class TestItemRepository:
             assert created_item2.name == item2_name
             assert created_item2.rank == 3
 
+    class TestDeleteItem:
+        def test_delete_item_success(self, repository, cities_ranking, cities_item):
+            response = repository.delete_item(cities_item.id)
+
+            assert response is True
+            assert Item.objects.filter(id=cities_item.id).exists() is False
+
+        def test_delete_non_existent_item(self, repository):
+            non_existent_id = 999
+
+            response = repository.delete_item(non_existent_id)
+
+            assert response is False
+
 @pytest.fixture
 def repository():
     return ItemRepository()

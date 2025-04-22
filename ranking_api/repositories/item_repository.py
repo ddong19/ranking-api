@@ -29,3 +29,11 @@ class ItemRepository:
             rank = num_items + 1,
             ranking_id = ranking_id,
         )
+
+    def delete_item(self, item_id: int) -> bool:
+        try:
+            item = self.model.objects.get(id=item_id)
+            item.delete()
+            return True
+        except self.model.DoesNotExist:
+            return False
