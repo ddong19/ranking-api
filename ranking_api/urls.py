@@ -26,7 +26,8 @@ urlpatterns = [
     # ITEM ENDPOINTS
     path('api/rankings/<int:ranking_id>/items/', ItemController.as_view(
         {
-            'get': 'get_ranking_items'
+            'get': 'get_ranking_items',
+            'post': 'create_ranking_item'
         }
     ), name='ranking-items'),
     path('api/rankings/<int:ranking_id>/item/<int:item_id>/', ItemController.as_view(

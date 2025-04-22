@@ -3,7 +3,7 @@ from django.test import TestCase
 from django.urls import reverse
 from unittest.mock import patch, MagicMock
 from ranking_api.services import RankingService, ItemService
-from ranking_api.models import Item
+from ranking_api.models import Item, RankingList
 
 
 @patch.object(RankingService, 'get_ranking')
@@ -124,3 +124,89 @@ class TestGetRankingItem(TestCase):
         self.assertEqual(response.status_code, 404)
         self.assertEqual(response.content, b'{"error": "Ranking not found"}')
         mock_get_ranking.assert_called_once_with(ranking_id)
+
+@patch.object(ItemService, 'create_item')
+class TestCreateRankingItem(TestCase):
+    # success
+    def test_create_item_success(self, mock_create_item):
+        ranking = RankingList.objects.create(title='London')
+        expected_item = Item(name="London", notes="some notes", rank=1, ranking_id=ranking.id)
+        mock_create_item.return_value = expected_item
+
+        response = self.client.post(
+            reverse('ranking-items', kwargs={'ranking_id': ranking.id}),
+            data={
+                'name': "London",
+                'notes': "some notes",
+            }
+        )
+
+        self.assertEqual(response.status_code, 201)
+        self.assertEqual(response.json(), {
+            'name': 'London',
+            'notes': 'some notes',
+            'rank': 1,
+            'ranking_id': ranking.id
+        })
+    # no notes
+    def test_create_item_no_notes_success(self, mock_create_item):
+        ranking = RankingList.objects.create(title='Superheros')
+        expected_item = Item(name="Batman", rank=1, ranking_id=ranking.id)
+        mock_create_item.return_value = expected_item
+
+        response = self.client.post(
+            reverse('ranking-items', kwargs={'ranking_id': ranking.id}),
+            data={
+                'name': "Batman",
+            }
+        )
+
+        self.assertEqual(response.status_code, 201)
+        self.assertEqual(response.json(), {
+            'name': 'Batman',
+            'notes': None,
+            'rank': 1,
+            'ranking_id': ranking.id
+        })
+    # no name error
+    def test_create_item_missing_name(self, mock_create_item):
+        ranking = RankingList.objects.create(title='Cities')
+
+        response = self.client.post(
+            reverse('ranking-items', kwargs={'ranking_id': ranking.id}),
+            data={
+                'notes': "No name provided"
+            }
+        )
+
+        self.assertEqual(response.status_code, 400)
+        self.assertEqual(response.json(), {
+            'error': 'Name is required'
+        })
+
+        mock_create_item.assert_not_called()
+
+    # database error
+    def test_create_item_db_error(self, mock_create_item):
+        ranking = RankingList.objects.create(title='Error Test')
+
+        mock_create_item.side_effect = Exception('Database error occurred')
+
+        response = self.client.post(
+            reverse('ranking-items', kwargs={'ranking_id': ranking.id}),
+            data={
+                'name': "Broken Item",
+                'notes': "Simulated DB failure"
+            }
+        )
+
+        self.assertEqual(response.status_code, 500)
+        self.assertEqual(response.json(), {
+            'error': 'Database error occurred'
+        })
+
+        mock_create_item.assert_called_once_with(
+            name='Broken Item',
+            notes='Simulated DB failure',
+            ranking_id=ranking.id
+        )

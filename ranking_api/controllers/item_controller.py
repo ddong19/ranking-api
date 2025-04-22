@@ -53,3 +53,26 @@ class ItemController(viewsets.ViewSet):
         except Exception as e:
             return JsonResponse({'error': str(e)}, status=500)
 
+    def create_ranking_item(self, request, ranking_id: int):
+        try:
+            name = request.data.get('name')
+            notes = request.data.get('notes')
+            ranking_id = ranking_id
+
+            if not name:
+                return JsonResponse({'error': 'Name is required'}, status=400)
+
+            item = self.item_service.create_item(
+                name=name,
+                notes=notes,
+                ranking_id=ranking_id
+            )
+
+            return JsonResponse({
+                'name': item.name,
+                'notes': item.notes,
+                'rank': item.rank,
+                'ranking_id': item.ranking.id
+            }, status=201)
+        except Exception as e:
+            return JsonResponse({'error': str(e)}, status=500)
