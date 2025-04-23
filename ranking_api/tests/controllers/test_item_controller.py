@@ -196,7 +196,7 @@ class TestCreateRankingItem(TestCase):
 class TestDeleteRankingItem(TestCase):
     def test_delete_item_success(self, mock_delete_item):
         item_id = 1
-        
+
         response = self.client.delete(
             reverse('ranking-item', kwargs={'item_id': item_id}),
         )
@@ -211,6 +211,66 @@ class TestDeleteRankingItem(TestCase):
 
         response = self.client.delete(reverse('ranking-item', kwargs={'item_id': item_id}))
 
-        assert response.status_code == 400
+        assert response.status_code == 404
         assert response.json() == {'error': 'Failed to delete item: DoesNotExist'}
         mock_delete_item.assert_called_once_with(item_id)
+
+@patch.object(ItemService, 'patch_item')
+class TestPatchRankingItem(TestCase):
+    def test_patch_item_success(self, mock_patch_item):
+        item_id = 1
+        ranking = RankingList.objects.create(title='Superheros')
+        mock_item = Item(id=item_id, name='Updated Name', notes='Updated Notes', rank=2)
+        mock_item.ranking = ranking
+        mock_patch_item.return_value = mock_item
+
+        request_data = {
+            'name': 'Updated Name',
+            'notes': 'Updated Notes'
+        }
+
+        response = self.client.patch(
+            reverse('ranking-item', kwargs={'item_id': item_id}),
+            data=request_data,
+            content_type='application/json',
+        )
+
+        assert response.status_code == 200
+        assert response.json() == {
+            'id': item_id,
+            'name': 'Updated Name',
+            'notes': 'Updated Notes',
+            'rank': 2,
+            'ranking': ranking.id
+        }
+        mock_patch_item.assert_called_once_with(item_id, name='Updated Name', notes='Updated Notes')
+
+    def test_patch_item_invalid_input(self, mock_patch_item):
+        item_id = 1
+        request_data = {}
+
+        response = self.client.patch(
+            reverse('ranking-item', kwargs={'item_id': item_id}),
+            data=request_data,
+            content_type='application/json',
+        )
+
+        assert response.status_code == 400
+        assert response.json() == {'error': 'At least one of name or notes must be provided.'}
+        mock_patch_item.assert_not_called()
+
+    def test_patch_item_not_found(self, mock_patch_item):
+        item_id = 999
+        mock_patch_item.side_effect = Item.DoesNotExist("Item with id 999 not found.")
+
+        request_data = {'name': 'Something New'}
+
+        response = self.client.patch(
+            reverse('ranking-item', kwargs={'item_id': item_id}),
+            data=request_data,
+            content_type='application/json',
+        )
+
+        assert response.status_code == 404
+        assert response.json() == {'error': 'Item with id 999 not found.'}
+        mock_patch_item.assert_called_once_with(item_id, name='Something New', notes=None)

@@ -22,3 +22,9 @@ class ItemService:
         deleted = self.item_repository.delete_item(item_id)
         if not deleted:
             raise Item.DoesNotExist(f"Item with id {item_id} does not exist.")
+
+    def patch_item(self, item_id: int, name: str = None, notes: str = None):
+        patched_item = self.item_repository.patch_item(item_id, name=name, notes=notes)
+        if not patched_item:
+            raise Item.DoesNotExist(f"Item with id {item_id} does not exist.")
+        return patched_item

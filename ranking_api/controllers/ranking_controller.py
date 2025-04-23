@@ -62,7 +62,7 @@ class RankingController(viewsets.ViewSet):
             self.ranking_service.delete_ranking(ranking_id)
             return JsonResponse({'success': True})
         except Exception as e:
-            return JsonResponse({'error': str(e)}, status=400)
+            return JsonResponse({'error': str(e)}, status=404)
 
     def update_ranking(self, request, ranking_id: int):
         try:
@@ -82,4 +82,4 @@ class RankingController(viewsets.ViewSet):
                 'description': ranking.description
             })
         except Exception as e:
-            return JsonResponse({'error': str(e)}, status=400)
+            return JsonResponse({'error': str(e)}, status=404)

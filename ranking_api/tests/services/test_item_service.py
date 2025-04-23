@@ -67,7 +67,7 @@ class TestCreateItem(BaseTestItemService):
         self.mock_item_repository.create_item.return_value = fake_item
 
         created_item = self.item_service.create_item(fake_item.name, fake_ranking.id, fake_item.notes)
-        assert created_item.notes == fake_item.notes
+        assert created_item.name == fake_item.name
         assert created_item.notes == fake_item.notes
         self.mock_item_repository.create_item.assert_called_once_with(fake_item.name, fake_ranking.id, fake_item.notes)
 
@@ -88,6 +88,53 @@ class TestDeleteItem(BaseTestItemService):
             self.item_service.delete_item(item_id)
 
         self.mock_item_repository.delete_item.assert_called_once_with(item_id)
+
+class TestPatchItem(BaseTestItemService):
+    def test_patch_item_success_with_name_and_notes(self, fake_item):
+        updated_name = "Updated Name"
+        updated_notes = "Updated Notes"
+        self.mock_item_repository.patch_item.return_value = fake_item
+
+        patched_item = self.item_service.patch_item(fake_item.id, name=updated_name, notes=updated_notes)
+
+        assert patched_item is not None
+        self.mock_item_repository.patch_item.assert_called_once_with(
+            fake_item.id, name=updated_name, notes=updated_notes
+        )
+
+    def test_patch_item_success_with_name_only(self, fake_item):
+        updated_name = "Name Only"
+        self.mock_item_repository.patch_item.return_value = fake_item
+
+        patched_item = self.item_service.patch_item(fake_item.id, name=updated_name)
+
+        assert patched_item is not None
+        self.mock_item_repository.patch_item.assert_called_once_with(
+            fake_item.id, name=updated_name, notes=None
+        )
+
+    def test_patch_item_success_with_notes_only(self, fake_item):
+        updated_notes = "Notes Only"
+        self.mock_item_repository.patch_item.return_value = fake_item
+
+        patched_item = self.item_service.patch_item(fake_item.id, notes=updated_notes)
+
+        assert patched_item is not None
+        self.mock_item_repository.patch_item.assert_called_once_with(
+            fake_item.id, name=None, notes=updated_notes
+        )
+
+    def test_patch_item_not_found(self, fake_item):
+        self.mock_item_repository.patch_item.return_value = None
+
+        with pytest.raises(Item.DoesNotExist) as exc_info:
+            self.item_service.patch_item(fake_item.id, name="Doesn't", notes="Matter")
+
+        assert str(exc_info.value) == f"Item with id {fake_item.id} does not exist."
+        self.mock_item_repository.patch_item.assert_called_once_with(
+            fake_item.id, name="Doesn't", notes="Matter"
+        )
+
 
 @pytest.fixture
 def fake_ranking():

@@ -36,3 +36,15 @@ class ItemRepository:
             return True
         except self.model.DoesNotExist:
             return False
+
+    def patch_item(self, item_id: int, name: str = None, notes: str = None):
+        try:
+            item = self.model.objects.get(id=item_id)
+            if name is not None:
+                item.name = name
+            if notes is not None:
+                item.notes = notes
+            item.save()
+            return item
+        except self.model.DoesNotExist:
+            return None

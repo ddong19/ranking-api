@@ -81,6 +81,38 @@ class TestItemRepository:
 
             assert response is False
 
+    class TestPatchItem:
+        def test_patch_name_only(self, repository, cities_item):
+            updated_item = repository.patch_item(item_id=cities_item.id, name="New York")
+
+            assert updated_item is not None
+            assert updated_item.name == "New York"
+            assert updated_item.notes == cities_item.notes
+
+        def test_patch_notes_only(self, repository, cities_item):
+            new_notes = "Updated travel notes"
+            updated_item = repository.patch_item(item_id=cities_item.id, notes=new_notes)
+
+            assert updated_item is not None
+            assert updated_item.notes == new_notes
+            assert updated_item.name == cities_item.name
+
+        def test_patch_both_fields(self, repository, cities_item):
+            updated_item = repository.patch_item(
+                item_id=cities_item.id,
+                name="San Francisco",
+                notes="Chilly in summer"
+            )
+
+            assert updated_item is not None
+            assert updated_item.name == "San Francisco"
+            assert updated_item.notes == "Chilly in summer"
+
+        def test_patch_nonexistent_item(self, repository):
+            updated_item = repository.patch_item(item_id=999, name="Ghost City")
+
+            assert updated_item is None
+
 @pytest.fixture
 def repository():
     return ItemRepository()

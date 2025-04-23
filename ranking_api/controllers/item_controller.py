@@ -80,4 +80,24 @@ class ItemController(viewsets.ViewSet):
             self.item_service.delete_item(item_id)
             return JsonResponse({'success': True})
         except Exception as e:
-            return JsonResponse({'error': str(e)}, status=400)
+            return JsonResponse({'error': str(e)}, status=404)
+
+    def patch_ranking_item(self, request, item_id: int):
+        try:
+            name = request.data.get('name')
+            notes = request.data.get('notes')
+
+            if name is None and notes is None:
+                return JsonResponse({'error': 'At least one of name or notes must be provided.'}, status=400)
+
+            updated_item = self.item_service.patch_item(item_id, name=name, notes=notes)
+
+            return JsonResponse({
+                'id': updated_item.id,
+                'name': updated_item.name,
+                'notes': updated_item.notes,
+                'rank': updated_item.rank,
+                'ranking': updated_item.ranking.id
+            })
+        except Exception as e:
+            return JsonResponse({'error': str(e)}, status=404)

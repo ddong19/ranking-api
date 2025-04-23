@@ -34,6 +34,7 @@ urlpatterns = [
         {
             'get': 'get_ranking_item',
             'delete': 'delete_ranking_item',
+            'patch': 'patch_ranking_item',
         }
     ), name='ranking-item'),
 

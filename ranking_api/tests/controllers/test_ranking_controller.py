@@ -182,7 +182,7 @@ class TestDeleteRankingEndpoint(TestCase):
 
         response = self.client.delete(f'/api/rankings/{ranking_id}/')
 
-        assert response.status_code == 400
+        assert response.status_code == 404
         assert response.json() == {'error': 'Failed to delete ranking: DoesNotExist'}
         mock_delete_ranking.assert_called_once_with(ranking_id)
 
@@ -227,7 +227,7 @@ class TestUpdateRankingEndpoint(TestCase):
             content_type='application/json'
         )
 
-        assert response.status_code == 400
+        assert response.status_code == 404
         assert response.json() == {'error': 'Failed to update ranking: DoesNotExist'}
         mocker.assert_called_once_with(999, 'Updated Title', 'Updated Description')
 
@@ -261,6 +261,6 @@ class TestUpdateRankingEndpoint(TestCase):
             content_type='application/json'
         )
 
-        assert response.status_code == 400
+        assert response.status_code == 404
         assert response.json() == {'error': 'Failed to update ranking: Unexpected error'}
         mocker.assert_called_once_with(1, 'Updated Title', 'Updated Description')
