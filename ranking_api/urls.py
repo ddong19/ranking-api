@@ -27,7 +27,7 @@ urlpatterns = [
     path('api/rankings/<int:ranking_id>/items/', ItemController.as_view(
         {
             'get': 'get_ranking_items',
-            'post': 'create_ranking_item'
+            'post': 'create_ranking_item',
         }
     ), name='ranking-items'),
     path('api/items/<int:item_id>/', ItemController.as_view(
@@ -37,7 +37,11 @@ urlpatterns = [
             'patch': 'patch_ranking_item',
         }
     ), name='ranking-item'),
-
+    path('api/rankings/<int:ranking_id>/update-ranks', ItemController.as_view(
+        {
+            'post': 'update_item_ranks'
+        }
+    ), name='ranking-item-update-ranks'),
     # RANKING ENDPOINTS
     path('api/rankings/',RankingController.as_view(
         {

@@ -135,6 +135,50 @@ class TestPatchItem(BaseTestItemService):
             fake_item.id, name="Doesn't", notes="Matter"
         )
 
+class TestUpdateItemRanks(BaseTestItemService):
+    def test_update_item_ranks_success(self):
+        ranking_id = 1
+        item_ids = [1, 2, 3]
+        mock_items = [
+            Item(id=1, ranking_id=1, rank=3),
+            Item(id=2, ranking_id=1, rank=1),
+            Item(id=3, ranking_id=1, rank=2),
+        ]
+
+        self.mock_item_repository.get_all_items.return_value = mock_items
+
+        self.item_service.update_item_ranks(ranking_id, item_ids)
+
+        self.mock_item_repository.get_all_items.assert_called_once_with(ranking_id)
+        self.mock_item_repository.update_item_ranks.assert_called_once_with(item_ids)
+
+    def test_update_item_ranks_fails_if_item_count_mismatch(self):
+        ranking_id = 1
+        item_ids = [1, 2, 3]
+        # Only 2 items returned
+        mock_items = [
+            Item(id=1, ranking_id=1),
+            Item(id=2, ranking_id=1),
+        ]
+
+        self.mock_item_repository.get_all_items.return_value = mock_items
+
+        with pytest.raises(ValueError, match="Number of IDs given does not match number of items."):
+            self.item_service.update_item_ranks(ranking_id, item_ids)
+
+    def test_update_item_ranks_fails_if_wrong_ranking_id(self):
+        ranking_id = 1
+        item_ids = [1, 2, 3]
+        mock_items = [
+            Item(id=1, ranking_id=1),
+            Item(id=2, ranking_id=2),
+            Item(id=3, ranking_id=1),
+        ]
+
+        self.mock_item_repository.get_all_items.return_value = mock_items
+
+        with pytest.raises(ValueError, match="All items must belong to the given ranking."):
+            self.item_service.update_item_ranks(ranking_id, item_ids)
 
 @pytest.fixture
 def fake_ranking():

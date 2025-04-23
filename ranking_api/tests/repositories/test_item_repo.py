@@ -131,7 +131,6 @@ class TestItemRepository:
             assert id_to_rank[item2.id] == 3
 
         def test_update_item_ranks_with_invalid_ids(self, repository, travel_ranking):
-            # Arrange
             item1 = repository.create_item(name="Item A", ranking_id=travel_ranking.id)
             item2 = repository.create_item(name="Item B", ranking_id=travel_ranking.id)
 

@@ -28,3 +28,15 @@ class ItemService:
         if not patched_item:
             raise Item.DoesNotExist(f"Item with id {item_id} does not exist.")
         return patched_item
+
+    def update_item_ranks(self, ranking_id: int, item_ids: list[int]) -> None:
+        items = self.item_repository.get_all_items(ranking_id)
+
+        if len(items) != len(item_ids):
+            raise ValueError("Number of IDs given does not match number of items.")
+
+        for item in items:
+            if item.ranking_id != ranking_id:
+                raise ValueError("All items must belong to the given ranking.")
+
+        self.item_repository.update_item_ranks(item_ids)

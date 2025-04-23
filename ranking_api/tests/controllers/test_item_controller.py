@@ -274,3 +274,72 @@ class TestPatchRankingItem(TestCase):
         assert response.status_code == 404
         assert response.json() == {'error': 'Item with id 999 not found.'}
         mock_patch_item.assert_called_once_with(item_id, name='Something New', notes=None)
+
+@patch.object(ItemService, 'update_item_ranks')
+class TestUpdateItemRanksController(TestCase):
+    def test_successful_rank_update(self, mock_update_item_ranks):
+        ranking_id = 1
+        url = reverse('ranking-item-update-ranks', kwargs={'ranking_id': ranking_id})
+        request_data = {
+            'item_ids': [3, 2, 1]
+        }
+
+        response = self.client.post(
+            url,
+            data=request_data,
+            content_type='application/json'
+        )
+
+        assert response.status_code == 200
+        assert response.json() == {'success': True}
+        mock_update_item_ranks.assert_called_once_with(ranking_id, [3, 2, 1])
+
+    def test_missing_item_ids(self, mock_update_item_ranks):
+        ranking_id = 1
+        url = reverse('ranking-item-update-ranks', kwargs={'ranking_id': ranking_id})
+
+        response = self.client.post(
+            url,
+            data={},  # No item_ids
+            content_type='application/json'
+        )
+
+        assert response.status_code == 400
+        assert response.json() == {'error': 'item_ids must be a non-empty list.'}
+        mock_update_item_ranks.assert_not_called()
+
+    def test_item_ids_not_a_list(self, mock_update_item_ranks):
+        ranking_id = 1
+        url = reverse('ranking-item-update-ranks', kwargs={'ranking_id': ranking_id})
+        request_data = {
+            'item_ids': 'not-a-list'
+        }
+
+        response = self.client.post(
+            url,
+            data=request_data,
+            content_type='application/json'
+        )
+
+        assert response.status_code == 400
+        assert response.json() == {'error': 'item_ids must be a non-empty list.'}
+        mock_update_item_ranks.assert_not_called()
+
+    def test_service_raises_exception(self, mock_update_item_ranks):
+        ranking_id = 1
+        url = reverse('ranking-item-update-ranks', kwargs={'ranking_id': ranking_id})
+        request_data = {
+            'item_ids': [99, 88]
+        }
+
+        mock_update_item_ranks.side_effect = ValueError("Invalid item IDs")
+
+        response = self.client.post(
+            url,
+            data=request_data,
+            content_type='application/json'
+        )
+
+        assert response.status_code == 400
+        assert response.json() == {'error': 'Invalid item IDs'}
+        mock_update_item_ranks.assert_called_once_with(ranking_id, [99, 88])
