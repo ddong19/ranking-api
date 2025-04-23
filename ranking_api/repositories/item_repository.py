@@ -48,3 +48,15 @@ class ItemRepository:
             return item
         except self.model.DoesNotExist:
             return None
+
+    def update_item_ranks(self, item_ids: list[int]) -> None:
+        items = list(self.model.objects.filter(id__in=item_ids))
+
+        id_to_item = {item.id: item for item in items}
+
+        for new_rank, item_id in enumerate(item_ids, start=1):
+            item = id_to_item.get(item_id)
+            if item:
+                item.rank = new_rank
+
+        self.model.objects.bulk_update(items, ['rank'])
