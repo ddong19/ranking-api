@@ -110,8 +110,9 @@ class TestUpdateRanking(BaseTestRankingService):
         title = "New Title"
         description = "New Description"
         self.mock_ranking_repository.update_ranking.return_value = None
+        exception_string = "Ranking with id " + str(ranking_id) + " does not exist."
 
-        with pytest.raises(Exception, match="Failed to update ranking:"):
+        with pytest.raises(Exception, match=exception_string):
             self.ranking_service.update_ranking(ranking_id, title, description)
 
         self.mock_ranking_repository.update_ranking.assert_called_once_with(ranking_id, title, description)
@@ -127,7 +128,6 @@ class TestUpdateRanking(BaseTestRankingService):
 
         self.mock_ranking_repository.update_ranking.assert_called_once_with(ranking_id, title, None)
         assert result == updated_ranking
-
 
 
 @pytest.fixture

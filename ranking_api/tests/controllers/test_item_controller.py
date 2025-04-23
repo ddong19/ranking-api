@@ -1,6 +1,4 @@
 import json
-
-from django.http import JsonResponse
 from django.test import TestCase
 from django.urls import reverse
 from unittest.mock import patch, MagicMock
@@ -198,6 +196,7 @@ class TestCreateRankingItem(TestCase):
 class TestDeleteRankingItem(TestCase):
     def test_delete_item_success(self, mock_delete_item):
         item_id = 1
+        
         response = self.client.delete(
             reverse('ranking-item', kwargs={'item_id': item_id}),
         )

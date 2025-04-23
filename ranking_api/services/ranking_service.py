@@ -22,13 +22,11 @@ class RankingService:
             raise RankingList.DoesNotExist(f"Ranking with id {ranking_id} does not exist.")
 
     def update_ranking(self, ranking_id: int, title: str, description: str = None) -> RankingList:
-        try:
-            updated_ranking = self.ranking_repository.update_ranking(ranking_id, title, description)
-            if not updated_ranking:
-                raise RankingList.DoesNotExist()
-            return updated_ranking
-        except Exception as e:
-            raise Exception(f"Failed to update ranking: {str(e)}")
+        updated_ranking = self.ranking_repository.update_ranking(ranking_id, title, description)
+        if not updated_ranking:
+            raise RankingList.DoesNotExist(f"Ranking with id {ranking_id} does not exist.")
+        return updated_ranking
+
 
 
 

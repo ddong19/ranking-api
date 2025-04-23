@@ -201,7 +201,7 @@ class TestUpdateRankingEndpoint(TestCase):
         mocker.return_value = mock_ranking
 
         response = self.client.put(
-            f'/api/rankings/{ranking_id}/',
+            reverse('ranking-detail', kwargs={'ranking_id': ranking_id}),
             data=request_data,
             content_type='application/json'
         )
@@ -222,13 +222,13 @@ class TestUpdateRankingEndpoint(TestCase):
         mocker.side_effect = Exception('Failed to update ranking: DoesNotExist')
 
         response = self.client.put(
-            f'/api/rankings/{ranking_id}/',
+            reverse('ranking-detail', kwargs={'ranking_id': ranking_id}),
             data=request_data,
             content_type='application/json'
         )
 
-        assert response.status_code == 404
-        assert response.json() == {'error': 'Ranking not found'}
+        assert response.status_code == 400
+        assert response.json() == {'error': 'Failed to update ranking: DoesNotExist'}
         mocker.assert_called_once_with(999, 'Updated Title', 'Updated Description')
 
     def test_update_ranking_missing_title(self, mocker):
@@ -238,7 +238,7 @@ class TestUpdateRankingEndpoint(TestCase):
         }
 
         response = self.client.put(
-            f'/api/rankings/{ranking_id}/',
+            reverse('ranking-detail', kwargs={'ranking_id': ranking_id}),
             data=request_data,
             content_type='application/json'
         )
@@ -256,11 +256,11 @@ class TestUpdateRankingEndpoint(TestCase):
         mocker.side_effect = Exception('Failed to update ranking: Unexpected error')
 
         response = self.client.put(
-            f'/api/rankings/{ranking_id}/',
+            reverse('ranking-detail', kwargs={'ranking_id': ranking_id}),
             data=request_data,
             content_type='application/json'
         )
 
-        assert response.status_code == 500
+        assert response.status_code == 400
         assert response.json() == {'error': 'Failed to update ranking: Unexpected error'}
         mocker.assert_called_once_with(1, 'Updated Title', 'Updated Description')

@@ -82,8 +82,4 @@ class RankingController(viewsets.ViewSet):
                 'description': ranking.description
             })
         except Exception as e:
-            if "Failed to update ranking:" in str(e) and "DoesNotExist" in str(e):
-                return JsonResponse({'error': 'Ranking not found'}, status=404)
-            return JsonResponse({'error': str(e)}, status=500)
-
-
+            return JsonResponse({'error': str(e)}, status=400)
