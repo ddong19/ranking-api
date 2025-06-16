@@ -1,3 +1,5 @@
+from django.db.models import F
+
 from ranking_api.models import Item
 from typing import List, Optional
 
@@ -20,14 +22,39 @@ class ItemRepository:
             .order_by('rank')
         )
 
-    def create_item(self, name: str, ranking_id: int, notes: Optional[str] = None) -> Item:
-        num_items = self.model.objects.filter(ranking_id=ranking_id).count()
+    def create_item(self, name: str, ranking_id: int, notes: Optional[str] = None, rank: Optional[int] = None) -> Item:
         return self.model.objects.create(
             name = name,
             notes = notes if notes is not None else '',
-            rank = num_items + 1,
+            rank = rank,
             ranking_id = ranking_id,
         )
+
+    def count_items_in_ranking(self, ranking_id: int) -> int:
+        return self.model.objects.filter(ranking_id=ranking_id).count()
+
+    def shift_ranks_for_insert(self, ranking_id: int, insert_rank: int):
+        self.model.objects.filter(
+            ranking_id=ranking_id,
+            rank__gte=insert_rank
+        ).update(rank=F('rank') + 1)
+
+    def shift_ranks_down(self, ranking_id: int, start: int, end: int):
+        self.model.objects.filter(
+            ranking_id=ranking_id,
+            rank__gte=start,
+            rank__lte=end
+        ).update(rank=F('rank') + 1)
+
+    def shift_ranks_up(self, ranking_id: int, start: int, end: Optional[int] = None):
+        queryset = self.model.objects.filter(
+            ranking_id=ranking_id,
+            rank__gte=start
+        )
+        if end is not None:
+            queryset = queryset.filter(rank__lte=end)
+
+        queryset.update(rank=F('rank') - 1)
 
     def delete_item(self, item_id: int) -> bool:
         try:
@@ -48,15 +75,3 @@ class ItemRepository:
             return item
         except self.model.DoesNotExist:
             return None
-
-    def update_item_ranks(self, item_ids: list[int]) -> None:
-        items = list(self.model.objects.filter(id__in=item_ids))
-
-        id_to_item = {item.id: item for item in items}
-
-        for new_rank, item_id in enumerate(item_ids, start=1):
-            item = id_to_item.get(item_id)
-            if item:
-                item.rank = new_rank
-
-        self.model.objects.bulk_update(items, ['rank'])

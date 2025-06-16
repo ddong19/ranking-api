@@ -58,18 +58,18 @@ class TestCreateItem(BaseTestItemService):
         fake_item_name_only = Item(name="test", ranking_id=fake_ranking.id, rank=1)
         self.mock_item_repository.create_item.return_value = fake_item_name_only
 
-        created_item = self.item_service.create_item(fake_item_name_only.name, fake_ranking.id)
+        created_item = self.item_service.create_item(fake_item_name_only.name, fake_ranking.id, rank=fake_item_name_only.rank)
         assert created_item.name == fake_item_name_only.name
         assert created_item.notes == fake_item_name_only.notes
-        self.mock_item_repository.create_item.assert_called_once_with(fake_item_name_only.name, fake_ranking.id, fake_item_name_only.notes)
+        self.mock_item_repository.create_item.assert_called_once_with(fake_item_name_only.name, fake_ranking.id, fake_item_name_only.notes, fake_item_name_only.rank)
 
     def test_create_item_with_notes_success(self, fake_ranking, fake_item):
         self.mock_item_repository.create_item.return_value = fake_item
 
-        created_item = self.item_service.create_item(fake_item.name, fake_ranking.id, fake_item.notes)
+        created_item = self.item_service.create_item(fake_item.name, fake_ranking.id, fake_item.notes, fake_item.rank)
         assert created_item.name == fake_item.name
         assert created_item.notes == fake_item.notes
-        self.mock_item_repository.create_item.assert_called_once_with(fake_item.name, fake_ranking.id, fake_item.notes)
+        self.mock_item_repository.create_item.assert_called_once_with(fake_item.name, fake_ranking.id, fake_item.notes, fake_item.rank)
 
 class TestDeleteItem(BaseTestItemService):
     def test_delete_item_success(self):
@@ -134,51 +134,6 @@ class TestPatchItem(BaseTestItemService):
         self.mock_item_repository.patch_item.assert_called_once_with(
             fake_item.id, name="Doesn't", notes="Matter"
         )
-
-class TestUpdateItemRanks(BaseTestItemService):
-    def test_update_item_ranks_success(self):
-        ranking_id = 1
-        item_ids = [1, 2, 3]
-        mock_items = [
-            Item(id=1, ranking_id=1, rank=3),
-            Item(id=2, ranking_id=1, rank=1),
-            Item(id=3, ranking_id=1, rank=2),
-        ]
-
-        self.mock_item_repository.get_all_items.return_value = mock_items
-
-        self.item_service.update_item_ranks(ranking_id, item_ids)
-
-        self.mock_item_repository.get_all_items.assert_called_once_with(ranking_id)
-        self.mock_item_repository.update_item_ranks.assert_called_once_with(item_ids)
-
-    def test_update_item_ranks_fails_if_item_count_mismatch(self):
-        ranking_id = 1
-        item_ids = [1, 2, 3]
-        # Only 2 items returned
-        mock_items = [
-            Item(id=1, ranking_id=1),
-            Item(id=2, ranking_id=1),
-        ]
-
-        self.mock_item_repository.get_all_items.return_value = mock_items
-
-        with pytest.raises(ValueError, match="Number of IDs given does not match number of items."):
-            self.item_service.update_item_ranks(ranking_id, item_ids)
-
-    def test_update_item_ranks_fails_if_wrong_ranking_id(self):
-        ranking_id = 1
-        item_ids = [1, 2, 3]
-        mock_items = [
-            Item(id=1, ranking_id=1),
-            Item(id=2, ranking_id=2),
-            Item(id=3, ranking_id=1),
-        ]
-
-        self.mock_item_repository.get_all_items.return_value = mock_items
-
-        with pytest.raises(ValueError, match="All items must belong to the given ranking."):
-            self.item_service.update_item_ranks(ranking_id, item_ids)
 
 @pytest.fixture
 def fake_ranking():

@@ -35,7 +35,7 @@ class TestItemRepository:
         def test_create_item_success(self, repository, cities_ranking, cities_item):
             item_name = "Ann Arbor"
             item_notes = "best school in the world"
-            created_item = repository.create_item(item_name, 1, item_notes)
+            created_item = repository.create_item(item_name, 1, item_notes, 2)
 
             assert created_item.name == item_name
             assert created_item.notes == item_notes
@@ -46,7 +46,7 @@ class TestItemRepository:
         def test_create_item_with_no_notes(self, repository, cities_ranking, cities_item):
             item_name = "Ann Arbor"
             item_notes = None
-            created_item = repository.create_item(item_name, 1, item_notes)
+            created_item = repository.create_item(item_name, 1, item_notes, 2)
 
             assert created_item.name == item_name
             assert created_item.notes == ""
@@ -59,8 +59,8 @@ class TestItemRepository:
 
             item2_name = "Chicago"
 
-            created_item1 = repository.create_item(item1_name, 1, item1_notes)
-            created_item2 = repository.create_item(item2_name, 1)
+            created_item1 = repository.create_item(item1_name, 1, item1_notes, rank=2)
+            created_item2 = repository.create_item(item2_name, 1, rank=3)
 
             assert created_item1.name == item1_name
             assert created_item1.rank == 2
@@ -112,38 +112,6 @@ class TestItemRepository:
             updated_item = repository.patch_item(item_id=999, name="Ghost City")
 
             assert updated_item is None
-
-    class TestUpdateItemRanks:
-        def test_update_item_ranks_success(self, repository, travel_ranking):
-            item1 = repository.create_item(name="Item 1", ranking_id=travel_ranking.id)
-            item2 = repository.create_item(name="Item 2", ranking_id=travel_ranking.id)
-            item3 = repository.create_item(name="Item 3", ranking_id=travel_ranking.id)
-
-            item_ids_in_new_order = [item3.id, item1.id, item2.id]
-
-            repository.update_item_ranks(item_ids_in_new_order)
-
-            updated_items = repository.model.objects.filter(id__in=item_ids_in_new_order)
-            id_to_rank = {item.id: item.rank for item in updated_items}
-
-            assert id_to_rank[item3.id] == 1
-            assert id_to_rank[item1.id] == 2
-            assert id_to_rank[item2.id] == 3
-
-        def test_update_item_ranks_with_invalid_ids(self, repository, travel_ranking):
-            item1 = repository.create_item(name="Item A", ranking_id=travel_ranking.id)
-            item2 = repository.create_item(name="Item B", ranking_id=travel_ranking.id)
-
-            fake_id = 99999
-            item_ids = [item2.id, fake_id, item1.id]
-
-            repository.update_item_ranks(item_ids)
-
-            item1.refresh_from_db()
-            item2.refresh_from_db()
-
-            assert item2.rank == 1
-            assert item1.rank == 3
 
 
 @pytest.fixture

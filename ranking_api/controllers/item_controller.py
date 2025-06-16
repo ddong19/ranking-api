@@ -55,6 +55,7 @@ class ItemController(viewsets.ViewSet):
         try:
             name = request.data.get('name')
             notes = request.data.get('notes')
+            insert_rank = request.data.get('rank') # Optional, = None if not entered
 
             if not name:
                 return JsonResponse({'error': 'Name is required'}, status=400)
@@ -62,6 +63,7 @@ class ItemController(viewsets.ViewSet):
             item = self.item_service.create_item(
                 name=name,
                 notes=notes,
+                rank = insert_rank,
                 ranking_id=ranking_id
             )
 
@@ -101,15 +103,8 @@ class ItemController(viewsets.ViewSet):
         except Exception as e:
             return JsonResponse({'error': str(e)}, status=404)
 
-    def update_item_ranks(self, request, ranking_id: int):
-        try:
-            item_ids = request.data.get('item_ids')
+    def update_item_rank(self, request, item_id):
+        new_rank = request.data.get['rank']
 
-            if not item_ids or not isinstance(item_ids, list):
-                return JsonResponse({'error': 'item_ids must be a non-empty list.'}, status=400)
-
-            self.item_service.update_item_ranks(ranking_id, item_ids)
-            return JsonResponse({'success': True})
-
-        except Exception as e:
-            return JsonResponse({'error': str(e)}, status=400)
+        updated_item = self.item_service.update_item_rank(item_id, new_rank)
+        return JsonResponse(updated_item.to_dict())
